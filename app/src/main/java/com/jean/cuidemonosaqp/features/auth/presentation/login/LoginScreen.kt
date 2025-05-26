@@ -73,7 +73,17 @@ private fun LoginScreen(
                 onValueChange = { it -> onAction(LoginAction.OnEmailOrDniChanged(it)) },
             )
 
+            Spacer(modifier = Modifier.height(15.dp))
 
+            Text(
+                text = stringResource(R.string.auth_password_label),
+                fontWeight = FontWeight.Medium,
+            )
+
+            PasswordTextField(
+                value = state.password,
+                onValueChange = { onAction(LoginAction.OnPasswordChanged(it)) }
+            )
 
         }
     }
