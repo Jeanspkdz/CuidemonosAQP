@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">CuidemonosAQP</string>
+    <string name="auth_subtitle">Seguridad Colaborativa</string>
+    <string name="auth_email_or_dni_label">Email o DNI</string>
+    <string name="auth_email_or_dni_placeholder">Ingresa tu email o DNI</string>
+    <string name="auth_password_label">Contraseña</string>
+    <string name="auth_password_placeholder">Ingresa tu contraseña</string>
+    <string name="auth_password_icon_button">Alternar visibilidad de contraseña </string>
+
 </resources>
