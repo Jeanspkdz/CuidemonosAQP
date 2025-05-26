@@ -16,7 +16,12 @@ import androidx.compose.ui.text.input.VisualTransformation
 import com.jean.cuidemonosaqp.R
 
 @Composable
-fun PasswordTextField(value: String, onValueChange: (String) -> Unit, modifier: Modifier = Modifier) {
+fun PasswordTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    placeholder: (@Composable () -> Unit)? = null,
+) {
     var isPasswordVisible by remember { mutableStateOf(false) }
 
     OutlinedTextField(
@@ -35,10 +40,12 @@ fun PasswordTextField(value: String, onValueChange: (String) -> Unit, modifier: 
                 )
             }
         },
+        placeholder = placeholder,
         singleLine = true,
         value = value,
         onValueChange = {
             onValueChange(it)
-        }
+        },
+        modifier = modifier
     )
 }

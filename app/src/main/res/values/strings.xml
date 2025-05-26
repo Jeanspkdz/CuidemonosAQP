@@ -6,5 +6,8 @@
     <string name="auth_password_label">Contraseña</string>
     <string name="auth_password_placeholder">Ingresa tu contraseña</string>
     <string name="auth_password_icon_button">Alternar visibilidad de contraseña </string>
+    <string name="auth_button_login">Iniciar Sesion</string>
+    <string name="auth_button_register">Registrarse</string>
+    <string name="auth_divider_continue_with">O continuar con</string>
 
 </resources>

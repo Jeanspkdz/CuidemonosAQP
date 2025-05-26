@@ -1,11 +1,25 @@
 package com.jean.cuidemonosaqp.features.auth.presentation.login
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,11 +43,17 @@ private fun LoginScreen(
     modifier: Modifier = Modifier
 ) {
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .padding(horizontal = 20.dp)
+            .fillMaxHeight()
+    ) {
         Image(
             painter = painterResource(R.drawable.logo),
             contentDescription = "Logo App",
-            modifier = Modifier.size(80.dp)
+            modifier = Modifier.size(120.dp)
         )
         Text(
             text = stringResource(R.string.app_name),
@@ -71,6 +91,7 @@ private fun LoginScreen(
                 singleLine = true,
                 value = state.email_or_dni,
                 onValueChange = { it -> onAction(LoginAction.OnEmailOrDniChanged(it)) },
+                modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(15.dp))
@@ -79,11 +100,46 @@ private fun LoginScreen(
                 text = stringResource(R.string.auth_password_label),
                 fontWeight = FontWeight.Medium,
             )
-
             PasswordTextField(
+                placeholder = {
+                    Text(
+                        text = stringResource(R.string.auth_password_placeholder),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                            alpha = 0.6f
+                        )
+                    )
+                },
                 value = state.password,
-                onValueChange = { onAction(LoginAction.OnPasswordChanged(it)) }
+                onValueChange = { onAction(LoginAction.OnPasswordChanged(it)) },
+                modifier = Modifier.fillMaxWidth()
             )
+
+            Spacer(Modifier.height(15.dp))
+            //Buttons
+            Button(
+                onClick = {},
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                ),
+                contentPadding = PaddingValues(vertical = 15.dp),
+                shape = RoundedCornerShape(10.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = stringResource(R.string.auth_button_login))
+            }
+
+            Spacer(Modifier.height(15.dp))
+
+            OutlinedButton(
+                onClick = {},
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primaryContainer),
+                contentPadding = PaddingValues(vertical = 15.dp),
+                shape = RoundedCornerShape(10.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = stringResource(R.string.auth_button_register))
+            }
+
 
         }
     }
