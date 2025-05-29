@@ -14,6 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.jean.cuidemonosaqp.features.auth.presentation.login.LoginScreenHost
 import com.jean.cuidemonosaqp.features.auth.presentation.login.LoginViewModel
+import com.jean.cuidemonosaqp.features.profile.presentation.PerfilScreen
 import com.jean.cuidemonosaqp.shared.presentation.theme.CuidemonosAQPTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -28,11 +29,17 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
                     NavHost(
                         navController = navController,
-                        startDestination = Routes.Auth,
+                        startDestination = Routes.Profile,
                         modifier = Modifier.padding(innerPadding)
                     ) {
                         composable<Routes.Auth> {
                             LoginScreenHost()
+                        }
+
+                        composable<Routes.Profile> {
+
+
+                           PerfilScreen()
                         }
                     }
                 }
