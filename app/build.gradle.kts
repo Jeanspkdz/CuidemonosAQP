@@ -79,4 +79,7 @@ dependencies {
 
     // Integración con Jetpack Compose
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
+
+    implementation("io.coil-kt:coil-compose:2.3.0")
+
 }

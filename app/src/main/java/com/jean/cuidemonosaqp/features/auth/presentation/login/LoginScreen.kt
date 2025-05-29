@@ -33,14 +33,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.jean.cuidemonosaqp.R
 import com.jean.cuidemonosaqp.features.auth.presentation.login.components.PasswordTextField
 import com.jean.cuidemonosaqp.shared.presentation.theme.CuidemonosAQPTheme
+import com.jean.cuidemonosaqp.app.Routes
+
 
 @Composable
 private fun LoginScreen(
     state: LoginState,
     onAction: (action: LoginAction) -> Unit,
+    navController: NavController ?= null,
     modifier: Modifier = Modifier
 ) {
 
@@ -132,7 +136,7 @@ private fun LoginScreen(
             Spacer(Modifier.height(15.dp))
 
             OutlinedButton(
-                onClick = {},
+                onClick = {navController?.navigate(Routes.Register)},
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.primaryContainer),
                 contentPadding = PaddingValues(vertical = 15.dp),
                 shape = RoundedCornerShape(10.dp),
@@ -149,6 +153,7 @@ private fun LoginScreen(
 
 @Composable
 fun LoginScreenHost(
+    navController: NavController,
     modifier: Modifier = Modifier
 ) {
     val viewModel: LoginViewModel = hiltViewModel()
@@ -157,7 +162,8 @@ fun LoginScreenHost(
     LoginScreen(
         state = state,
         onAction = viewModel::onAction,
-        modifier = modifier
+        modifier = modifier,
+        navController = navController
     )
 }
 

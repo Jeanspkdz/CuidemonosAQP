@@ -9,4 +9,7 @@ sealed class Routes {
 
     @Serializable
     data object Profile
+
+    @Serializable
+    data object Register
 }
