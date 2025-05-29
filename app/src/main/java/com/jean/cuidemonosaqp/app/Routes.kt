@@ -6,4 +6,7 @@ sealed class Routes {
 
     @Serializable
     data object Auth
+
+    @Serializable
+    data object Profile
 }
