@@ -15,7 +15,9 @@ import androidx.navigation.compose.rememberNavController
 import com.jean.cuidemonosaqp.features.auth.presentation.login.LoginScreenHost
 import com.jean.cuidemonosaqp.features.auth.presentation.login.LoginViewModel
 import com.jean.cuidemonosaqp.shared.presentation.theme.CuidemonosAQPTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,9 +32,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(innerPadding)
                     ) {
                         composable<Routes.Auth> {
-                            val viewModel : LoginViewModel = viewModel()
-
-                            LoginScreenHost(viewModel)
+                            LoginScreenHost()
                         }
                     }
                 }
