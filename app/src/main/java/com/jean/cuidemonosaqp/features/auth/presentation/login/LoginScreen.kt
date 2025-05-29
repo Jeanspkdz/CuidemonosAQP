@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.jean.cuidemonosaqp.R
 import com.jean.cuidemonosaqp.features.auth.presentation.login.components.PasswordTextField
 import com.jean.cuidemonosaqp.shared.presentation.theme.CuidemonosAQPTheme
@@ -117,7 +118,7 @@ private fun LoginScreen(
             Spacer(Modifier.height(15.dp))
             //Buttons
             Button(
-                onClick = {},
+                onClick = {onAction(LoginAction.OnLoginClicked)},
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 ),
@@ -148,9 +149,9 @@ private fun LoginScreen(
 
 @Composable
 fun LoginScreenHost(
-    viewModel: LoginViewModel,
     modifier: Modifier = Modifier
 ) {
+    val viewModel: LoginViewModel = hiltViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     LoginScreen(
