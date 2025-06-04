@@ -1,4 +1,4 @@
-package com.jean.cuidemonosaqp.app
+package com.jean.cuidemonosaqp.navigation
 
 import kotlinx.serialization.Serializable
 
