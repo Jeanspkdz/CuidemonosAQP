@@ -1,5 +1,6 @@
 package com.jean.cuidemonosaqp.modules.auth.ui.login
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jean.cuidemonosaqp.modules.auth.data.AuthRepository
@@ -44,8 +45,27 @@ class LoginViewModel @Inject constructor(
 
     fun onLoginClicked() {
         viewModelScope.launch {
+            _isLoading.value = true
+            _errorMessage.value = null
+            _isSuccess.value = false
 
+            try {
+                val response = authRepository.login(emailOrDni.value, password.value)
 
+                // Logs
+                Log.d("LOGIN_RESPONSE", "Access Token: ${response.accessToken}")
+                Log.d("LOGIN_RESPONSE", "Refresh Token: ${response.refreshToken}")
+
+                // Aquí podrías guardar los tokens en DataStore si lo deseas
+
+                _isSuccess.value = true
+            } catch (e: Exception) {
+                Log.e("LOGIN_ERROR", "Login falló: ${e.message}", e)
+                _errorMessage.value = "Credenciales incorrectas o error de red"
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
+
 }

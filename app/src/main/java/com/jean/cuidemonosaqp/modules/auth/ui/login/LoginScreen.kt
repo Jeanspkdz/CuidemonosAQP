@@ -43,7 +43,9 @@ fun LoginScreenHost(modifier: Modifier = Modifier, viewModel: LoginViewModel) {
         onEmailOrDniChanged = viewModel::onEmailChanged,
         password = password,
         onPasswordChanged = viewModel::onPasswordChanged,
-        onLoginButtonClick = {}
+        onLoginButtonClick = {
+            viewModel.onLoginClicked()
+        }
     )
 }
 
