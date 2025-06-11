@@ -8,13 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.jean.cuidemonosaqp.features.auth.presentation.login.LoginScreenHost
-import com.jean.cuidemonosaqp.features.profile.presentation.PerfilScreen
-import com.jean.cuidemonosaqp.navigation.Routes
-import com.jean.cuidemonosaqp.shared.presentation.theme.CuidemonosAQPTheme
+import com.jean.cuidemonosaqp.navigation.NavGraph
+import com.jean.cuidemonosaqp.shared.theme.CuidemonosAQPTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -25,22 +20,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             CuidemonosAQPTheme(dynamicColor = false) {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    val navController = rememberNavController()
-                    NavHost(
-                        navController = navController,
-                        startDestination = Routes.Profile,
-                        modifier = Modifier.padding(innerPadding)
-                    ) {
-                        composable<Routes.Auth> {
-                            LoginScreenHost()
-                        }
-
-                        composable<Routes.Profile> {
-
-
-                           PerfilScreen()
-                        }
-                    }
+                    NavGraph(modifier = Modifier.padding(innerPadding))
                 }
             }
         }
