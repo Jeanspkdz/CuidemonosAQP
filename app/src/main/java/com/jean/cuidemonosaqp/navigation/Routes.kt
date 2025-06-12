@@ -7,6 +7,9 @@ sealed class Routes {
     sealed class Auth {
         @Serializable
         data object Login
+
+        @Serializable
+        data object Register
     }
 
     @Serializable

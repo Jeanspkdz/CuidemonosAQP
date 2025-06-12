@@ -28,13 +28,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.jean.cuidemonosaqp.R
+import com.jean.cuidemonosaqp.navigation.Routes
 import com.jean.cuidemonosaqp.shared.components.PasswordTextField
 import com.jean.cuidemonosaqp.shared.theme.CuidemonosAQPTheme
 
 
 @Composable
-fun LoginScreenHost(modifier: Modifier = Modifier, viewModel: LoginViewModel) {
+fun LoginScreenHost(
+    modifier: Modifier = Modifier,
+    viewModel: LoginViewModel,
+    navController: NavController?=null,
+) {
     val emailOrDni by viewModel.emailOrDni.collectAsStateWithLifecycle()
     val password by viewModel.password.collectAsStateWithLifecycle()
 
@@ -45,6 +51,9 @@ fun LoginScreenHost(modifier: Modifier = Modifier, viewModel: LoginViewModel) {
         onPasswordChanged = viewModel::onPasswordChanged,
         onLoginButtonClick = {
             viewModel.onLoginClicked()
+        },
+        onNavigateToRegister = {
+            navController?.navigate(Routes.Auth.Register)
         }
     )
 }
@@ -56,6 +65,7 @@ fun LoginScreen(
     password: String,
     onPasswordChanged: (String) -> Unit,
     onLoginButtonClick: () -> Unit,
+    onNavigateToRegister: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -145,7 +155,7 @@ fun LoginScreen(
             Spacer(Modifier.height(15.dp))
 
             OutlinedButton(
-                onClick = {},
+                onClick = onNavigateToRegister,
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.primaryContainer),
                 contentPadding = PaddingValues(vertical = 15.dp),
                 shape = RoundedCornerShape(10.dp),
@@ -166,7 +176,8 @@ fun LoginScreenPreview(){
             onEmailOrDniChanged = {},
             password = "",
             onPasswordChanged = {},
-            onLoginButtonClick = {}
+            onLoginButtonClick = {},
+            onNavigateToRegister = {}
         )
     }
 }

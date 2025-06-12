@@ -10,6 +10,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.jean.cuidemonosaqp.modules.auth.ui.login.LoginScreenHost
 import com.jean.cuidemonosaqp.modules.auth.ui.login.LoginViewModel
+import com.jean.cuidemonosaqp.modules.auth.ui.register.RegisterScreenHost
+import com.jean.cuidemonosaqp.modules.auth.ui.register.RegisterViewModel
 
 @Composable
 fun NavGraph(modifier: Modifier = Modifier) {
@@ -23,12 +25,22 @@ fun NavGraph(modifier: Modifier = Modifier) {
             val viewModel = hiltViewModel<LoginViewModel>()
 
             LoginScreenHost(
-                viewModel = viewModel
+                viewModel = viewModel,
+                navController = navController
+            )
+        }
+
+        composable<Routes.Auth.Register> {
+            val viewModel = hiltViewModel<RegisterViewModel>()
+
+            RegisterScreenHost(
+                viewModel = viewModel,
+                navController = navController
             )
         }
 
         composable<Routes.Profile> {
-            Text("PRofile Sscreen")
+            Text("Profile Sscreen")
         }
     }
 }
