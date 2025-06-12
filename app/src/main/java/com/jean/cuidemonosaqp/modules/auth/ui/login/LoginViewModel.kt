@@ -3,7 +3,8 @@ package com.jean.cuidemonosaqp.modules.auth.ui.login
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jean.cuidemonosaqp.modules.auth.data.AuthRepository
+import com.jean.cuidemonosaqp.modules.auth.domain.usecase.LoginUseCase
+import com.jean.cuidemonosaqp.shared.network.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,9 +12,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val loginUseCase: LoginUseCase,
 ) : ViewModel() {
 
     private val _emailOrDni = MutableStateFlow("")
@@ -22,50 +24,50 @@ class LoginViewModel @Inject constructor(
     private val _password = MutableStateFlow("")
     val password = _password.asStateFlow()
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading = _isLoading.asStateFlow()
 
-    private val _isSuccess = MutableStateFlow(false)
-    val isSuccess = _isSuccess.asStateFlow()
 
-    private val _errorMessage = MutableStateFlow<String?>(null)
-    val errorMessage = _errorMessage.asStateFlow()
+    private val _loginState = MutableStateFlow(LoginState())
+    val loginState = _loginState.asStateFlow()
 
     fun onEmailChanged(emailOrDni: String) {
-        _emailOrDni.update {
-            emailOrDni
-        }
+        _emailOrDni.update { emailOrDni }
     }
 
     fun onPasswordChanged(password: String) {
-        _password.update {
-            password
-        }
+        _password.update { password }
     }
 
     fun onLoginClicked() {
         viewModelScope.launch {
-            _isLoading.value = true
-            _errorMessage.value = null
-            _isSuccess.value = false
+            _loginState.value = LoginState(isLoading = true)
 
             try {
-                val response = authRepository.login(emailOrDni.value, password.value)
+                // Usando LoginUseCase (método recomendado)
+                when (val result = loginUseCase(emailOrDni.value, password.value)) {
+                    is NetworkResult.Success -> {
+                        Log.d("LOGIN_SUCCESS", "Login exitoso")
+                        Log.d("LOGIN_DATA", "Datos: ${result.data}")
 
-                // Logs
-                Log.d("LOGIN_RESPONSE", "Access Token: ${response.accessToken}")
-                Log.d("LOGIN_RESPONSE", "Refresh Token: ${response.refreshToken}")
-
-                // Aquí podrías guardar los tokens en DataStore si lo deseas
-
-                _isSuccess.value = true
+                        _loginState.value = LoginState(success = true)
+                    }
+                    is NetworkResult.Error -> {
+                        Log.e("LOGIN_ERROR", "Error: ${result.message}")
+                        _loginState.value = LoginState(error = result.message ?: "Error desconocido")
+                    }
+                    is NetworkResult.Loading -> {
+                        Log.d("LOGIN_LOADING", "Cargando...")
+                    }
+                }
             } catch (e: Exception) {
-                Log.e("LOGIN_ERROR", "Login falló: ${e.message}", e)
-                _errorMessage.value = "Credenciales incorrectas o error de red"
-            } finally {
-                _isLoading.value = false
+                Log.e("LOGIN_EXCEPTION", "Excepción durante login: ${e.message}", e)
+                _loginState.value = LoginState(error = "Error inesperado: ${e.message}")
             }
         }
     }
 
+
+
+    fun clearError() {
+        _loginState.value = LoginState()
+    }
 }

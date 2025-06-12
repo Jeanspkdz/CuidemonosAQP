@@ -1,4 +1,4 @@
-package com.jean.cuidemonosaqp.modules.auth.data
+/*package com.jean.cuidemonosaqp.modules.auth.data
 
 import dagger.Module
 import dagger.Provides
@@ -40,4 +40,4 @@ object AuthModule {
         return AuthRepositoryImp(authRemoteDatasource = authRemoteDatasource)
     }
 }
-
+*/

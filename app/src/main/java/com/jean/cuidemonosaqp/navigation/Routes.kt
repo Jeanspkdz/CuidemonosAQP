@@ -2,13 +2,10 @@ package com.jean.cuidemonosaqp.navigation
 
 import kotlinx.serialization.Serializable
 
-sealed class Routes {
-
-    sealed class Auth {
-        @Serializable
-        data object Login
+sealed class Routes(val route: String) {
+    sealed class Auth(route: String) : Routes(route) {
+        object Login : Auth("login_screen") // Rutas específicas para Auth
     }
 
-    @Serializable
-    data object Profile
+    object Profile : Routes("profile_screen") // Ruta para Profile
 }

@@ -4,7 +4,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -14,21 +13,29 @@ import com.jean.cuidemonosaqp.modules.auth.ui.login.LoginViewModel
 @Composable
 fun NavGraph(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
+
+    // Definir el NavHost y sus rutas
     NavHost(
         navController = navController,
-        startDestination = Routes.Auth.Login,
+        startDestination = Routes.Auth.Login.route,  // Rutas definidas
         modifier = modifier
     ) {
-        composable<Routes.Auth.Login> {
+        // Pantalla de Login
+        composable(Routes.Auth.Login.route) {
             val viewModel = hiltViewModel<LoginViewModel>()
 
             LoginScreenHost(
-                viewModel = viewModel
+                viewModel = viewModel,
+                onLoginSuccess = {
+                    // Si el login es exitoso, navega a la pantalla de perfil
+                    navController.navigate(Routes.Profile.route)
+                }
             )
         }
 
-        composable<Routes.Profile> {
-            Text("PRofile Sscreen")
+        // Pantalla de Perfil (ProfileScreen)
+        composable(Routes.Profile.route) {
+            Text("Profile Screen")
         }
     }
 }

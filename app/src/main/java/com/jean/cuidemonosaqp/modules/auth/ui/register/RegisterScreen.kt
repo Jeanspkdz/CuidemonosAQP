@@ -1,4 +1,4 @@
-package com.jean.cuidemonosaqp.modules.auth.ui.register
+/*package com.jean.cuidemonosaqp.modules.auth.ui.register
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -123,5 +123,5 @@ fun RegisterScreen(modifier: Modifier = Modifier, viewModel: RegisterViewModel) 
 @Preview
 @Composable
 private fun RegisterScreenPreview(){
-}
+}*/
 

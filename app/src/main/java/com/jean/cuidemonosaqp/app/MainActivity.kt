@@ -20,10 +20,12 @@ class MainActivity : ComponentActivity() {
         setContent {
             CuidemonosAQPTheme(dynamicColor = false) {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    // Llama al NavGraph y pasa el innerPadding para la pantalla
                     NavGraph(modifier = Modifier.padding(innerPadding))
                 }
             }
         }
     }
 }
+
 

@@ -1,4 +1,4 @@
-package com.jean.cuidemonosaqp.modules.auth.data
+/*package com.jean.cuidemonosaqp.modules.auth.data
 
 import java.sql.Timestamp
 
@@ -49,3 +49,4 @@ data class RegisterResponse(
     val token_refresh: String?
 )
 
+*/

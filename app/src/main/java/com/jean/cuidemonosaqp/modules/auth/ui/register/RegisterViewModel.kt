@@ -1,4 +1,4 @@
-package com.jean.cuidemonosaqp.modules.auth.ui.register
+/*package com.jean.cuidemonosaqp.modules.auth.ui.register
 
 import android.content.ContentValues.TAG
 import android.util.Log
@@ -62,4 +62,4 @@ class RegisterViewModel @Inject constructor(
 
     }
 
-}
+}*/
