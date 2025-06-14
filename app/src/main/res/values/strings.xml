@@ -10,4 +10,11 @@
     <string name="auth_button_register">Registrarse</string>
     <string name="auth_divider_continue_with">O continuar con</string>
 
+
+    <!--    Error-->
+    <string name="internal_server_error">Error del Servidor</string>
+    <string name="invalid_credentials_error">Credenciales No Validas</string>
+    <string name="unknown_error">Algo salio mal</string>
+    <string name="required_fields_error">Todos los Campos son Requeridos</string>
+
 </resources>

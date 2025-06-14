@@ -4,7 +4,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 
 interface AuthRepository {
-    suspend fun login(identifier: String, password: String): LoginResponse
+    suspend fun login(identifier: String, password: String): Result<LoginResponse>
 
     suspend fun register(
         dni: RequestBody,

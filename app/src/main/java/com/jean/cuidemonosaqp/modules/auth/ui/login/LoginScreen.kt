@@ -14,11 +14,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,19 +45,30 @@ fun LoginScreenHost(
 ) {
     val emailOrDni by viewModel.emailOrDni.collectAsStateWithLifecycle()
     val password by viewModel.password.collectAsStateWithLifecycle()
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
 
     LoginScreen(
         emailOrDni = emailOrDni,
         onEmailOrDniChanged = viewModel::onEmailChanged,
         password = password,
         onPasswordChanged = viewModel::onPasswordChanged,
-        onLoginButtonClick = {
-            viewModel.onLoginClicked()
-        },
+        isLoading = isLoading,
+        onLoginButtonClick = viewModel::onLoginClicked,
         onNavigateToRegister = {
             navController?.navigate(Routes.Auth.Register)
         }
     )
+
+
+    LaunchedEffect(Unit) {
+        viewModel.event.collect(){
+            when(it){
+                LoginEvent.NavigateToHome -> {
+                    navController?.navigate(Routes.Home)
+                }
+            }
+        }
+    }
 }
 
 @Composable
@@ -64,9 +77,11 @@ fun LoginScreen(
     onEmailOrDniChanged: (String) -> Unit,
     password: String,
     onPasswordChanged: (String) -> Unit,
+    isLoading: Boolean,
     onLoginButtonClick: () -> Unit,
     onNavigateToRegister: () -> Unit,
     modifier: Modifier = Modifier,
+
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -149,6 +164,10 @@ fun LoginScreen(
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
+                if(isLoading){
+                    CircularProgressIndicator()
+                    return@Button
+                }
                 Text(text = stringResource(R.string.auth_button_login))
             }
 
@@ -165,6 +184,7 @@ fun LoginScreen(
             }
         }
     }
+
 }
 
 @Preview
@@ -175,6 +195,7 @@ fun LoginScreenPreview(){
             emailOrDni = "",
             onEmailOrDniChanged = {},
             password = "",
+            isLoading = false,
             onPasswordChanged = {},
             onLoginButtonClick = {},
             onNavigateToRegister = {}
