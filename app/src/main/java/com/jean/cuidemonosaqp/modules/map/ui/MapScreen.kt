@@ -60,6 +60,7 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.jean.cuidemonosaqp.R
+import com.jean.cuidemonosaqp.shared.components.CurrentLocationMap
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
@@ -72,81 +73,6 @@ fun MapScreen(modifier: Modifier = Modifier) {
     var searchText by remember { mutableStateOf("") }
 
 
-    val context = LocalContext.current
-    // Estados para la ubicación y el mapa
-    var currentLocation by remember { mutableStateOf<LatLng?>(null) }
-    var isLoading by remember { mutableStateOf(false) }
-
-    // Posición inicial del mapa (Arequipa, Perú)
-    val defaultLocation = LatLng(-16.4090, -71.5375)
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(
-            currentLocation ?: defaultLocation,
-            15f
-        )
-    }
-
-    // Permisos de ubicación
-    val locationPermissions = rememberMultiplePermissionsState(
-        permissions = listOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        )
-    )
-
-    // Cliente de ubicación
-    val fusedLocationClient = remember {
-        LocationServices.getFusedLocationProviderClient(context)
-    }
-
-    // Función para obtener la ubicación actual
-    suspend fun getCurrentLocation(): Location? = suspendCancellableCoroutine { continuation ->
-        if (!locationPermissions.allPermissionsGranted) {
-            continuation.resume(null)
-            return@suspendCancellableCoroutine
-        }
-
-        val locationRequest = LocationRequest.Builder(
-            Priority.PRIORITY_HIGH_ACCURACY,
-            10000L
-        ).build()
-
-        try {
-            fusedLocationClient.getCurrentLocation(
-                Priority.PRIORITY_HIGH_ACCURACY,
-                null
-            ).addOnSuccessListener { location ->
-                continuation.resume(location)
-            }.addOnFailureListener {
-                continuation.resume(null)
-            }
-        } catch (e: SecurityException) {
-            continuation.resume(null)
-        }
-    }
-
-    // Efecto para obtener la ubicación cuando se otorgan los permisos
-    LaunchedEffect(locationPermissions.allPermissionsGranted) {
-        if (locationPermissions.allPermissionsGranted) {
-            isLoading = true
-            try {
-                val location = getCurrentLocation()
-                location?.let {
-                    val newLocation = LatLng(it.latitude, it.longitude)
-                    currentLocation = newLocation
-                    // Animar la cámara a la nueva ubicación
-                    cameraPositionState.animate(
-                        CameraUpdateFactory.newLatLngZoom(newLocation, 18f),
-                        1000
-                    )
-                }
-            } catch (e: Exception) {
-                // Manejar error
-            } finally {
-                isLoading = false
-            }
-        }
-    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -194,64 +120,11 @@ fun MapScreen(modifier: Modifier = Modifier) {
             }
 
 
-            GoogleMap(
-                modifier = Modifier.weight(1f),
-                cameraPositionState = cameraPositionState,
-                properties = MapProperties(
-                    isMyLocationEnabled = locationPermissions.allPermissionsGranted,
-                    mapType = MapType.NORMAL
-                )
-            ){
-                // Marcador en la ubicación actual
-                currentLocation?.let { location ->
-                    Marker(
-                        state = MarkerState(position = location),
-                        title = "Mi ubicación",
-                        snippet = "Estás aquí"
-                    )
-                }
-            }
+
+            //CurrentLocationMap
+            CurrentLocationMap(modifier = Modifier.weight(1f))
 
 
-            //Para Ubicar
-            // Botón para centrar en ubicación actual
-//            FloatingActionButton(
-//                onClick = {
-//                    if (locationPermissions.allPermissionsGranted) {
-//                        // Relanzar la obtención de ubicación
-//                        isLoading = true
-//                        // Usar corrutina para obtener ubicación
-//                    } else {
-//                        locationPermissions.launchMultiplePermissionRequest()
-//                    }
-//                },
-//                modifier = Modifier
-////                    .align(Alignment.BottomEnd)
-//                    .padding(16.dp)
-//                    .size(48.dp),
-//                containerColor = Color.White,
-//                contentColor = Color(0xFF2196F3)
-//            ) {
-//                if (isLoading) {
-//                    CircularProgressIndicator(
-//                        modifier = Modifier.size(24.dp),
-//                        strokeWidth = 2.dp
-//                    )
-//                } else {
-//                    Icon(
-//                        Icons.Default.Place,
-//                        contentDescription = "Mi ubicación",
-//                        modifier = Modifier.size(24.dp)
-//                    )
-//                }
-//            }
-
-            // Dialog para solicitar permisos
-            if (!locationPermissions.allPermissionsGranted) {
-                LocationPermissionDialog(
-                    locationPermissions = locationPermissions
-                )
-            }
 
             // Bottom Navigation
             NavigationBar(
@@ -300,37 +173,3 @@ fun MapScreen(modifier: Modifier = Modifier) {
     }
 }
 
-
-@OptIn(ExperimentalPermissionsApi::class)
-@Composable
-fun LocationPermissionDialog(
-    locationPermissions: MultiplePermissionsState
-) {
-    if (locationPermissions.shouldShowRationale || !locationPermissions.allPermissionsGranted) {
-        androidx.compose.material3.AlertDialog(
-            onDismissRequest = {},
-            title = {
-                Text("Permisos de Ubicación Requeridos")
-            },
-            text = {
-                Text(
-                    "Para mostrar tu ubicación actual en el mapa, necesitamos acceso a tu ubicación. Por favor, acepta los permisos."
-                )
-            },
-            confirmButton = {
-                androidx.compose.material3.TextButton(
-                    onClick = {
-                        locationPermissions.launchMultiplePermissionRequest()
-                    }
-                ) {
-                    Text("Permitir")
-                }
-            },
-            dismissButton = {
-                androidx.compose.material3.TextButton(onClick = {}) {
-                    Text("Cancelar")
-                }
-            }
-        )
-    }
-}

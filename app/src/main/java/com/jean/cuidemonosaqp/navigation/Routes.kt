@@ -17,4 +17,9 @@ sealed class Routes {
 
     @Serializable
     data object Home
+
+    sealed class Points {
+        @Serializable
+        data object Create
+    }
 }
