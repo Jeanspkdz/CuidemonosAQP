@@ -1,5 +1,9 @@
-package com.jean.cuidemonosaqp.modules.auth.data
+package com.jean.cuidemonosaqp.modules.auth.data.repository
 
+import com.jean.cuidemonosaqp.modules.auth.data.model.LoginResponse
+import com.jean.cuidemonosaqp.modules.auth.data.model.RegisterResponse
+import com.jean.cuidemonosaqp.modules.auth.data.remote.AuthRemoteDatasource
+import com.jean.cuidemonosaqp.modules.auth.domain.AuthRepository
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import javax.inject.Inject
@@ -7,7 +11,7 @@ import javax.inject.Inject
 class AuthRepositoryImp @Inject constructor(
     val authRemoteDatasource: AuthRemoteDatasource,
     // localDatasource
-) : AuthRepository{
+) : AuthRepository {
     override suspend fun login(identifier: String, password: String): Result<LoginResponse> {
         return authRemoteDatasource.login(identifier, password)
     }

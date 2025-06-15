@@ -3,14 +3,13 @@ package com.jean.cuidemonosaqp.modules.auth.ui.login
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jean.cuidemonosaqp.modules.auth.data.AuthRepository
+import com.jean.cuidemonosaqp.modules.auth.domain.AuthRepository
 import com.jean.cuidemonosaqp.shared.utils.UiText
 import com.jean.cuidemonosaqp.shared.utils.handleExceptionToStringRes
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch

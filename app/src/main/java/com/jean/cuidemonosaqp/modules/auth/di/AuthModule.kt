@@ -1,5 +1,10 @@
-package com.jean.cuidemonosaqp.modules.auth.data
+package com.jean.cuidemonosaqp.modules.auth.di
 
+import com.jean.cuidemonosaqp.modules.auth.data.remote.AuthRemoteDatasource
+import com.jean.cuidemonosaqp.modules.auth.domain.AuthRepository
+import com.jean.cuidemonosaqp.modules.auth.data.repository.AuthRepositoryImp
+import com.jean.cuidemonosaqp.modules.auth.data.remote.AuthRetrofitDatasource
+import com.jean.cuidemonosaqp.modules.auth.data.remote.AuthService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -11,16 +16,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AuthModule {
-    private const val URL = "https://cuidemonosaqp-backend.onrender.com"
-
-    @Provides
-    @Singleton
-    fun provideRetrofit(): Retrofit{
-        return Retrofit.Builder()
-            .baseUrl(URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-    }
 
     @Provides
     @Singleton
@@ -30,13 +25,13 @@ object AuthModule {
 
     @Provides
     @Singleton
-    fun provideAuthRemoteDatasource(authService: AuthService):AuthRemoteDatasource{
+    fun provideAuthRemoteDatasource(authService: AuthService): AuthRemoteDatasource {
         return AuthRetrofitDatasource(authService)
     }
 
     @Provides
     @Singleton
-    fun provideAuthRepository(authRemoteDatasource: AuthRemoteDatasource): AuthRepository{
+    fun provideAuthRepository(authRemoteDatasource: AuthRemoteDatasource): AuthRepository {
         return AuthRepositoryImp(authRemoteDatasource = authRemoteDatasource)
     }
 }

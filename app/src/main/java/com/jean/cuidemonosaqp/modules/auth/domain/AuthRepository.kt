@@ -1,5 +1,7 @@
-package com.jean.cuidemonosaqp.modules.auth.data
+package com.jean.cuidemonosaqp.modules.auth.domain
 
+import com.jean.cuidemonosaqp.modules.auth.data.model.LoginResponse
+import com.jean.cuidemonosaqp.modules.auth.data.model.RegisterResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 
