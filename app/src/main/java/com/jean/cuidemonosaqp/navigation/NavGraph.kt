@@ -13,13 +13,13 @@ import com.jean.cuidemonosaqp.modules.auth.ui.login.LoginViewModel
 @Composable
 fun NavGraph(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
-
     // Definir el NavHost y sus rutas
     NavHost(
         navController = navController,
         startDestination = Routes.Auth.Login.route,  // Rutas definidas
         modifier = modifier
     ) {
+
         // Pantalla de Login
         composable(Routes.Auth.Login.route) {
             val viewModel = hiltViewModel<LoginViewModel>()
@@ -33,9 +33,12 @@ fun NavGraph(modifier: Modifier = Modifier) {
             )
         }
 
+
         // Pantalla de Perfil (ProfileScreen)
         composable(Routes.Profile.route) {
             Text("Profile Screen")
         }
+
+
     }
 }

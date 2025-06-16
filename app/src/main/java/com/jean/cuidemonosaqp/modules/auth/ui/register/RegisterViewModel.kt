@@ -1,10 +1,10 @@
-/*package com.jean.cuidemonosaqp.modules.auth.ui.register
+package com.jean.cuidemonosaqp.modules.auth.ui.register
 
 import android.content.ContentValues.TAG
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jean.cuidemonosaqp.modules.auth.data.AuthRepository
+import com.jean.cuidemonosaqp.modules.auth.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -62,4 +62,4 @@ class RegisterViewModel @Inject constructor(
 
     }
 
-}*/
+}
