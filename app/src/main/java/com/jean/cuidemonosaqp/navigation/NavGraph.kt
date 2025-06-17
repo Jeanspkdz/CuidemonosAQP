@@ -9,6 +9,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.jean.cuidemonosaqp.modules.auth.ui.login.LoginScreenHost
 import com.jean.cuidemonosaqp.modules.auth.ui.login.LoginViewModel
+import com.jean.cuidemonosaqp.modules.auth.ui.register.RegisterScreen
+import com.jean.cuidemonosaqp.modules.auth.ui.register.RegisterViewModel
+import com.jean.cuidemonosaqp.modules.profile.ui.ProfileScreen
 
 @Composable
 fun NavGraph(modifier: Modifier = Modifier) {
@@ -29,13 +32,25 @@ fun NavGraph(modifier: Modifier = Modifier) {
                 onLoginSuccess = {
                     // Si el login es exitoso, navega a la pantalla de perfil
                     navController.navigate(Routes.Profile.route)
+                },
+                onNavigateToRegister = {
+                    navController.navigate(Routes.Auth.Register.route)
                 }
             )
         }
 
+        composable(Routes.Auth.Register.route) {
+            val viewModel = hiltViewModel<RegisterViewModel>()
+            RegisterScreen(
+                viewModel = viewModel
+            )
+        }
 
-        // Pantalla de Perfil (ProfileScreen)
         composable(Routes.Profile.route) {
+            ProfileScreen()
+        }
+        // Pantalla de Perfil (ProfileScreen)
+        composable(Routes.Map.route) {
             Text("Profile Screen")
         }
     }

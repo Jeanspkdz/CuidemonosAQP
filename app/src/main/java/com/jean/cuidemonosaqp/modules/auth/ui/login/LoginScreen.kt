@@ -42,7 +42,8 @@ import com.jean.cuidemonosaqp.shared.theme.CuidemonosAQPTheme
 fun LoginScreenHost(
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel,
-    onLoginSuccess: () -> Unit = {}
+    onLoginSuccess: () -> Unit = {},
+    onNavigateToRegister: () -> Unit = {}
 ) {
     val emailOrDni by viewModel.emailOrDni.collectAsStateWithLifecycle()
     val password by viewModel.password.collectAsStateWithLifecycle()
@@ -69,6 +70,7 @@ fun LoginScreenHost(
         password = password,
         onPasswordChanged = viewModel::onPasswordChanged,
         onLoginButtonClick = viewModel::onLoginClicked,
+        onRegisterClick = onNavigateToRegister,
         isLoading = loginState.isLoading,
         modifier = modifier
     )
@@ -81,6 +83,7 @@ fun LoginScreen(
     password: String,
     onPasswordChanged: (String) -> Unit,
     onLoginButtonClick: () -> Unit,
+    onRegisterClick: () -> Unit,
     isLoading: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
@@ -182,7 +185,7 @@ fun LoginScreen(
                 Spacer(Modifier.height(15.dp))
 
                 OutlinedButton(
-                    onClick = {},
+                    onClick = { onRegisterClick() },
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.primaryContainer),
                     contentPadding = PaddingValues(vertical = 15.dp),
                     shape = RoundedCornerShape(10.dp),
@@ -219,6 +222,7 @@ fun LoginScreenPreview() {
             password = "",
             onPasswordChanged = {},
             onLoginButtonClick = {},
+            onRegisterClick = {},
             isLoading = false
         )
     }
@@ -234,6 +238,7 @@ fun LoginScreenLoadingPreview() {
             password = "password123",
             onPasswordChanged = {},
             onLoginButtonClick = {},
+            onRegisterClick = {},
             isLoading = true
         )
     }
