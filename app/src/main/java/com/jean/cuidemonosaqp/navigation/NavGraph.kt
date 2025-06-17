@@ -38,7 +38,5 @@ fun NavGraph(modifier: Modifier = Modifier) {
         composable(Routes.Profile.route) {
             Text("Profile Screen")
         }
-
-
     }
 }
