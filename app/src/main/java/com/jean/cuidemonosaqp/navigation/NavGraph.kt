@@ -34,17 +34,25 @@ fun NavGraph(modifier: Modifier = Modifier) {
                     navController.navigate(Routes.Profile.route)
                 },
                 onNavigateToRegister = {
+                    // Si el login es exitoso, navega a la pantalla de perfil
                     navController.navigate(Routes.Auth.Register.route)
                 }
             )
         }
-
+        // Pantalla de Registro
         composable(Routes.Auth.Register.route) {
             val viewModel = hiltViewModel<RegisterViewModel>()
             RegisterScreen(
-                viewModel = viewModel
+                viewModel = viewModel,
+                onRegisterSuccess = {
+                    navController.navigate(Routes.Profile.route) {
+                        popUpTo(Routes.Auth.Register.route) { inclusive = true }
+                    }
+                }
             )
         }
+
+
 
         composable(Routes.Profile.route) {
             ProfileScreen()

@@ -1,127 +1,163 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.jean.cuidemonosaqp.modules.auth.ui.register
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
+import android.content.ContentResolver
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.rememberAsyncImagePainter
+import com.jean.cuidemonosaqp.shared.utils.uriToPart
+import kotlinx.coroutines.flow.collectLatest
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 
 @Composable
-fun RegisterScreen(modifier: Modifier = Modifier, viewModel: RegisterViewModel) {
+fun RegisterScreen(
+    viewModel: RegisterViewModel = hiltViewModel(),
+    onRegisterSuccess: () -> Unit
+) {
+    val context = LocalContext.current
+    val contentResolver = context.contentResolver
 
-    val fullName by viewModel.fullName.collectAsStateWithLifecycle()
-    val email by viewModel.email.collectAsStateWithLifecycle()
-    val password by viewModel.password.collectAsStateWithLifecycle()
-    val confirmPassword by viewModel.confirmPassword.collectAsStateWithLifecycle()
-    val address by viewModel.address.collectAsStateWithLifecycle()
-    val phoneNumber by viewModel.phoneNumber.collectAsStateWithLifecycle()
+    // Estado de la pantalla (loading, success, error)
+    val state by viewModel.registerState.collectAsState()
 
-    Box(
-        modifier = Modifier
-            .fillMaxHeight(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxHeight(),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text("Crear cuenta", style = MaterialTheme.typography.headlineSmall)
+    // Campos del formulario
+    var dni by remember { mutableStateOf("") }
+    var firstName by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
+    var dniExtension by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var address by remember { mutableStateOf("") }
+    var reputationStatusId by remember { mutableStateOf("1") }
 
-            OutlinedTextField(
-                value = fullName,
-                onValueChange = { viewModel.onFullNameChange(it) },
-                label = { Text("Nombre completo") },
-                leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
-                singleLine = true
+    // Imagenes seleccionadas como Uri
+    var profilePhotoUri by remember { mutableStateOf<Uri?>(null) }
+    var dniPhotoUri by remember { mutableStateOf<Uri?>(null) }
+
+    // Lanzadores de selección de imagen
+    val profilePhotoPicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri -> profilePhotoUri = uri }
+
+    val dniPhotoPicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri -> dniPhotoUri = uri }
+
+    // Mostrar Toast en caso de éxito
+    if (state.success) {
+        Toast.makeText(context, "Registro exitoso", Toast.LENGTH_LONG).show()
+        LaunchedEffect(Unit) {
+            onRegisterSuccess()
+        }
+    }
+
+    // Mostrar Toast en caso de error
+    state.error?.let {
+        Toast.makeText(context, "Error: $it", Toast.LENGTH_LONG).show()
+    }
+
+    Column(Modifier.padding(16.dp)) {
+
+        // Campos de texto para datos personales
+        OutlinedTextField(dni, { dni = it }, label = { Text("DNI") })
+        OutlinedTextField(firstName, { firstName = it }, label = { Text("Nombre") })
+        OutlinedTextField(lastName, { lastName = it }, label = { Text("Apellido") })
+        OutlinedTextField(dniExtension, { dniExtension = it }, label = { Text("Extensión DNI (opcional)") })
+        OutlinedTextField(password, { password = it }, label = { Text("Contraseña") })
+        OutlinedTextField(phone, { phone = it }, label = { Text("Teléfono") })
+        OutlinedTextField(email, { email = it }, label = { Text("Correo electrónico") })
+        OutlinedTextField(address, { address = it }, label = { Text("Dirección") })
+        OutlinedTextField(reputationStatusId, { reputationStatusId = it }, label = { Text("ID reputación") })
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Botón para seleccionar imagen de DNI
+        Button(onClick = { dniPhotoPicker.launch("image/*") }) {
+            Text("Seleccionar foto de DNI")
+        }
+
+        // Previsualización de imagen de DNI
+        dniPhotoUri?.let {
+            Image(
+                painter = rememberAsyncImagePainter(it),
+                contentDescription = null,
+                modifier = Modifier.size(80.dp).padding(top = 4.dp),
+                contentScale = ContentScale.Crop
             )
+        }
 
-            OutlinedTextField(
-                value = email,
-                onValueChange = { viewModel.onEmailChange(it) },
-                label = { Text("Correo electrónico") },
-                leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Botón para seleccionar imagen de perfil
+        Button(onClick = { profilePhotoPicker.launch("image/*") }) {
+            Text("Seleccionar foto de perfil")
+        }
+
+        // Previsualización de imagen de perfil
+        profilePhotoUri?.let {
+            Image(
+                painter = rememberAsyncImagePainter(it),
+                contentDescription = null,
+                modifier = Modifier.size(80.dp).padding(top = 4.dp),
+                contentScale = ContentScale.Crop
             )
+        }
 
-            OutlinedTextField(
-                value = password,
-                onValueChange = { viewModel.onPasswordChange(it) },
-                label = { Text("Contraseña") },
-                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                singleLine = true
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Botón de registro
+        Button(onClick = {
+            // Convertir Strings a RequestBody para la API
+            val dniBody = dni.toRequestBody("text/plain".toMediaTypeOrNull())
+            val firstNameBody = firstName.toRequestBody("text/plain".toMediaTypeOrNull())
+            val lastNameBody = lastName.toRequestBody("text/plain".toMediaTypeOrNull())
+            val passwordBody = password.toRequestBody("text/plain".toMediaTypeOrNull())
+            val phoneBody = phone.toRequestBody("text/plain".toMediaTypeOrNull())
+            val emailBody = email.toRequestBody("text/plain".toMediaTypeOrNull())
+            val addressBody = address.toRequestBody("text/plain".toMediaTypeOrNull())
+            val repStatusBody = reputationStatusId.toRequestBody("text/plain".toMediaTypeOrNull())
+            val dniExtBody = dniExtension.takeIf { it.isNotBlank() }
+                ?.toRequestBody("text/plain".toMediaTypeOrNull())
+
+            // Convertir imágenes (Uri) a MultipartBody.Part
+            val dniPart = dniPhotoUri?.let { uriToPart("dni_photo", it, contentResolver) }
+            val profilePart = profilePhotoUri?.let { uriToPart("profile_photo", it, contentResolver) }
+
+            // Enviar registro al ViewModel
+            viewModel.registerUser(
+                dniBody,
+                firstNameBody,
+                lastNameBody,
+                dniExtBody,
+                passwordBody,
+                phoneBody,
+                emailBody,
+                addressBody,
+                repStatusBody,
+                dniPart,
+                profilePart
             )
+        }) {
+            Text("Registrarse")
+        }
 
-            OutlinedTextField(
-                value = confirmPassword,
-                onValueChange = { viewModel.onConfirmPasswordChange(it) },
-                label = { Text("Confirmar contraseña") },
-                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                singleLine = true
-            )
-
-            OutlinedTextField(
-                value = address,
-                onValueChange = { viewModel.onAddressChange(it) },
-                label = { Text("Dirección") },
-                leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null) },
-                singleLine = true
-            )
-
-            OutlinedTextField(
-                value = phoneNumber,
-                onValueChange = { viewModel.onPhoneNumberChange(it) },
-                label = { Text("Número telefónico") },
-                leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null) },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                singleLine = true
-            )
-
-            Button(
-                onClick = {},
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text("Registrarse")
-            }
+        // Círculo de carga si se está procesando el registro
+        if (state.isLoading) {
+            CircularProgressIndicator(modifier = Modifier.padding(top = 8.dp))
         }
     }
 }
-
-@Preview
-@Composable
-private fun RegisterScreenPreview(){
-}
-
