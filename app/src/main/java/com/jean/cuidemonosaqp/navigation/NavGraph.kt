@@ -11,6 +11,7 @@ import com.jean.cuidemonosaqp.modules.auth.ui.login.LoginScreenHost
 import com.jean.cuidemonosaqp.modules.auth.ui.login.LoginViewModel
 import com.jean.cuidemonosaqp.modules.auth.ui.register.RegisterScreen
 import com.jean.cuidemonosaqp.modules.auth.ui.register.RegisterViewModel
+import com.jean.cuidemonosaqp.modules.map.ui.MapScreen
 import com.jean.cuidemonosaqp.modules.profile.ui.ProfileScreen
 
 @Composable
@@ -30,8 +31,9 @@ fun NavGraph(modifier: Modifier = Modifier) {
             LoginScreenHost(
                 viewModel = viewModel,
                 onLoginSuccess = {
-                    // Si el login es exitoso, navega a la pantalla de perfil
-                    navController.navigate(Routes.Profile.route)
+                    navController.navigate(Routes.Map.route) {
+                        popUpTo(Routes.Auth.Login.route) { inclusive = true }
+                    }
                 },
                 onNavigateToRegister = {
                     // Si el login es exitoso, navega a la pantalla de perfil
@@ -45,7 +47,7 @@ fun NavGraph(modifier: Modifier = Modifier) {
             RegisterScreen(
                 viewModel = viewModel,
                 onRegisterSuccess = {
-                    navController.navigate(Routes.Profile.route) {
+                    navController.navigate(Routes.Map.route) {
                         popUpTo(Routes.Auth.Register.route) { inclusive = true }
                     }
                 }
@@ -59,7 +61,7 @@ fun NavGraph(modifier: Modifier = Modifier) {
         }
         // Pantalla de Perfil (ProfileScreen)
         composable(Routes.Map.route) {
-            Text("Profile Screen")
+            MapScreen()
         }
     }
 }
