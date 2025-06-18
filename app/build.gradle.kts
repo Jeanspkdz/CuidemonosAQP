@@ -106,4 +106,6 @@ dependencies {
 
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.google.accompanist:accompanist-permissions:0.32.0")
+
+    implementation ("androidx.compose.material:material-icons-extended")
 }
