@@ -31,7 +31,8 @@ fun NavGraph(modifier: Modifier = Modifier) {
             LoginScreenHost(
                 viewModel = viewModel,
                 onLoginSuccess = {
-                    navController.navigate(Routes.Map.route) {
+//                    navController.navigate(Routes.Map.route) {
+                    navController.navigate(Routes.Profile.route) {
                         popUpTo(Routes.Auth.Login.route) { inclusive = true }
                     }
                 },

@@ -21,6 +21,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -29,20 +31,45 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.jean.cuidemonosaqp.R
+import com.jean.cuidemonosaqp.shared.theme.CuidemonosAQPTheme
 
 @Composable
-fun ProfileScreen(viewModel: ProfileViewModel = viewModel()) {
+fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel()) {
 
-    val perfil by viewModel.perfilUiState.collectAsStateWithLifecycle()
-    val resenas by viewModel.resenas.collectAsStateWithLifecycle()
+    val profile by viewModel.profileUiState.collectAsStateWithLifecycle()
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+    val reviews by viewModel.reviews.collectAsStateWithLifecycle()
+
+    val context = LocalContext.current
+
+
+    if(isLoading){
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+          CircularProgressIndicator()
+        }
+        return
+    }
+
+    if (profile == null) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(text = "Something went wrong. Please try again.")
+        }
+        return
+    }
 
     LazyColumn(
         modifier = Modifier
@@ -55,9 +82,15 @@ fun ProfileScreen(viewModel: ProfileViewModel = viewModel()) {
         item {
             // Imagen de perfil con borde azul
             Box {
-                Image(
-                    painter = painterResource(id = R.drawable.perfil_mujer),
-                    contentDescription = "Foto de perfil",
+                AsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data(profile?.profilePhotoUrl)
+                        .placeholder(R.drawable.default_profile)
+                        .error(R.drawable.default_profile)
+                        .crossfade(true)
+                        .build(),
+                    contentScale = ContentScale.Crop,
+                    contentDescription = "User Photo Profile",
                     modifier = Modifier
                         .size(120.dp)
                         .clip(CircleShape)
@@ -69,7 +102,7 @@ fun ProfileScreen(viewModel: ProfileViewModel = viewModel()) {
                     modifier = Modifier
                         .size(32.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFF2196F3))
+                        .background(MaterialTheme.colorScheme.primaryContainer)
                         .align(Alignment.BottomEnd),
                     contentAlignment = Alignment.Center
                 ) {
@@ -81,7 +114,7 @@ fun ProfileScreen(viewModel: ProfileViewModel = viewModel()) {
 
             // Nombre
             Text(
-                text = perfil.nombre,
+                text = profile?.fullName ?: "",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
@@ -89,7 +122,7 @@ fun ProfileScreen(viewModel: ProfileViewModel = viewModel()) {
 
             // Miembro desde
             Text(
-                text = "Miembro desde: ${perfil.miembroDesde}",
+                text = profile?.memberSince ?: "",
                 fontSize = 14.sp,
                 color = Color.Gray
             )
@@ -98,25 +131,25 @@ fun ProfileScreen(viewModel: ProfileViewModel = viewModel()) {
 
             // Rating con estrellas
             Row(verticalAlignment = Alignment.CenterVertically) {
-                repeat(perfil.rating.toInt()) {
+                repeat(profile!!.rating.toInt()) {
                     Text("⭐", fontSize = 20.sp)
                 }
-                repeat(5 - perfil.rating.toInt()) {
-                    Text("☆", fontSize = 20.sp, color = Color.Gray)
+                repeat(5 - profile!!.rating.toInt()) {
+                    Text("☆", fontSize = 23.sp, color = Color.Gray)
                 }
             }
 
             Text(
-                text = "${perfil.rating}/5.0",
+                text = "${profile?.rating}/5.0",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )
 
-            Text(
-                text = "${perfil.totalRatings} calificaciones",
-                fontSize = 14.sp,
-                color = Color.Gray
-            )
+//            Text(
+//                text = "${profile.totalRatings} calificaciones",
+//                fontSize = 14.sp,
+//                color = Color.Gray
+//            )
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -127,7 +160,7 @@ fun ProfileScreen(viewModel: ProfileViewModel = viewModel()) {
                     .fillMaxWidth()
                     .height(48.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF2196F3)
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
                 ),
                 shape = RoundedCornerShape(8.dp)
             ) {
@@ -148,19 +181,19 @@ fun ProfileScreen(viewModel: ProfileViewModel = viewModel()) {
             ) {
                 StatItem(
                     icon = "📍",
-                    value = perfil.puntosVigilados.toString(),
+                    value = profile!!.monitoredPoints.toString(),
                     label = "Puntos Vigilados"
                 )
 
                 StatItem(
                     icon = "⏱️",
-                    value = "${perfil.horasVigilancia}h",
+                    value = "${profile!!.surveillanceHours}h",
                     label = "Vigilancia"
                 )
 
                 StatItem(
                     icon = "🛡️",
-                    value = "${perfil.confiabilidad}%",
+                    value = "${profile!!.reliability}%",
                     label = "Confiabilidad"
                 )
             }
@@ -179,7 +212,7 @@ fun ProfileScreen(viewModel: ProfileViewModel = viewModel()) {
         }
 
         // Lista de reseñas
-        items(resenas) { resena ->
+        items(reviews) { review ->
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -207,56 +240,33 @@ fun ProfileScreen(viewModel: ProfileViewModel = viewModel()) {
 
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = resena.autor,
+                            text = review.author,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium
                         )
 
                         // Estrellas de la reseña
                         Row {
-                            repeat(resena.estrellas) {
+                            repeat(review.stars) {
                                 Text("⭐", fontSize = 14.sp)
                             }
                         }
 
                         Text(
-                            text = resena.comentario,
+                            text = review.comment,
                             fontSize = 14.sp,
                             color = Color.Gray,
                             modifier = Modifier.padding(top = 4.dp)
                         )
 
                         Text(
-                            text = resena.fecha,
+                            text = review.date,
                             fontSize = 12.sp,
                             color = Color.Gray,
                             modifier = Modifier.padding(top = 4.dp)
                         )
                     }
                 }
-            }
-        }
-
-        item {
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Botón Contacto Seguro
-            Button(
-                onClick = { viewModel.onContactoSeguro() },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF2196F3)
-                ),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text(
-                    "Contacto Seguro",
-                    color = Color.White,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
-                )
             }
         }
     }
@@ -285,5 +295,13 @@ fun StatItem(icon: String, value: String, label: String) {
             color = Color.Gray,
             textAlign = TextAlign.Center
         )
+    }
+}
+
+@Preview
+@Composable
+private fun ProfileScreenPreview() {
+    CuidemonosAQPTheme(dynamicColor = false) {
+        ProfileScreen()
     }
 }
