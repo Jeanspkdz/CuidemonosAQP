@@ -13,6 +13,7 @@ import com.jean.cuidemonosaqp.modules.auth.ui.register.RegisterScreen
 import com.jean.cuidemonosaqp.modules.auth.ui.register.RegisterViewModel
 import com.jean.cuidemonosaqp.modules.map.ui.MapScreen
 import com.jean.cuidemonosaqp.modules.profile.ui.ProfileScreen
+import com.jean.cuidemonosaqp.modules.safeZone.ui.create.CreateSafeZoneScreen
 
 @Composable
 fun NavGraph(modifier: Modifier = Modifier) {
@@ -31,12 +32,12 @@ fun NavGraph(modifier: Modifier = Modifier) {
             LoginScreenHost(
                 viewModel = viewModel,
                 onLoginSuccess = {
-                    navController.navigate(Routes.Map.route) {
-                        popUpTo(Routes.Auth.Login.route) { inclusive = true }
+                    // Después del login exitoso, navega a la pantalla de crear zona segura
+                    navController.navigate(Routes.CreateSafeZone.route) {
+                        popUpTo(Routes.Auth.Login.route) { inclusive = true }  // Elimina las pantallas anteriores del stack
                     }
                 },
                 onNavigateToRegister = {
-                    // Si el login es exitoso, navega a la pantalla de perfil
                     navController.navigate(Routes.Auth.Register.route)
                 }
             )
@@ -54,14 +55,17 @@ fun NavGraph(modifier: Modifier = Modifier) {
             )
         }
 
-
-
         composable(Routes.Profile.route) {
             ProfileScreen()
         }
         // Pantalla de Perfil (ProfileScreen)
         composable(Routes.Map.route) {
             MapScreen()
+        }
+
+        // Pantalla de Crear Zona Segura (CreateSafeZoneScreen)
+        composable(Routes.CreateSafeZone.route) {
+            CreateSafeZoneScreen() // Aquí se navega a la pantalla de creación de zona segura
         }
     }
 }
