@@ -5,6 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -49,8 +50,8 @@ fun BottomNavigationBar(
         )
 
         NavigationBarItem(
-            icon = { Icon(Icons.Default.Favorite, contentDescription = "Favoritos") },
-            label = { Text("Favoritos", fontSize = 12.sp) },
+            icon = { Icon(Icons.Default.Star, contentDescription = "Favoritos") },
+            label = { Text("Mis Puntos", fontSize = 12.sp) },
             selected = currentRoute == Routes.CreateSafeZone.route, // Asumiendo que tienes esta ruta
             onClick = {
                 // navController.navigate(Routes.Favorites.route) {
