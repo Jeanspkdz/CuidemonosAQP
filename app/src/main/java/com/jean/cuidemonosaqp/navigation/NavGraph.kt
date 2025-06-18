@@ -9,7 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.jean.cuidemonosaqp.modules.auth.ui.login.LoginScreenHost
 import com.jean.cuidemonosaqp.modules.auth.ui.login.LoginViewModel
-import com.jean.cuidemonosaqp.modules.auth.ui.register.RegisterScreen
+import com.jean.cuidemonosaqp.modules.auth.ui.register.RegisterScreenHost
 import com.jean.cuidemonosaqp.modules.auth.ui.register.RegisterViewModel
 import com.jean.cuidemonosaqp.modules.map.ui.MapScreen
 import com.jean.cuidemonosaqp.modules.profile.ui.ProfileScreen
@@ -44,12 +44,16 @@ fun NavGraph(modifier: Modifier = Modifier) {
         // Pantalla de Registro
         composable(Routes.Auth.Register.route) {
             val viewModel = hiltViewModel<RegisterViewModel>()
-            RegisterScreen(
+            RegisterScreenHost(
                 viewModel = viewModel,
                 onRegisterSuccess = {
                     navController.navigate(Routes.Map.route) {
                         popUpTo(Routes.Auth.Register.route) { inclusive = true }
                     }
+                },
+                onNavigateToLogin = {
+                    //
+                    navController.navigate(Routes.Auth.Register.route)
                 }
             )
         }

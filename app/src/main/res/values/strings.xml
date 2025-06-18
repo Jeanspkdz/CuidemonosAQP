@@ -10,4 +10,31 @@
     <string name="auth_button_register">Registrarse</string>
     <string name="auth_divider_continue_with">O continuar con</string>
 
+    <string name="register_subtitle">Registrate para iniciar</string>
+    <string name="register_dni_label">DNI</string>
+    <string name="register_dni_placeholder">Ingresa tu DNI</string>
+    <string name="register_firstname_label">Nombres</string>
+    <string name="register_firstname_placeholder">Ingresa tu nombre completo</string>
+    <string name="register_lastname_label">Apellidos</string>
+    <string name="register_lastname_placeholder">Ingresa tus apellidos completos</string>
+    <string name="register_dni_extension_label">Extension de DNI (PE)</string>
+    <string name="register_dni_extension_placeholder">Ingresa tu extensión de DNI</string>
+    <string name="register_email_label">Email</string>
+    <string name="register_email_placeholder">Ingresa tu email</string>
+    <string name="register_password_label">Contraseña</string>
+    <string name="register_password_placeholder">Ingresa tu contraseña</string>
+    <string name="register_confirm_password_label">Validar Contraseña</string>
+    <string name="register_confirm_password_placeholder">Vuelve a ingresar tu contraseña</string>
+    <string name="register_phone_label">Telefono</string>
+    <string name="register_phone_placeholder">Ingresa tu numero de telefono</string>
+    <string name="register_address_label">Direccion</string>
+    <string name="register_address_placeholder">Ingresa tu direccion</string>
+    <string name="register_photos_section">Sube una foto de tu DNI y Perfil</string>
+    <string name="register_dni_photo_label">Selecciona una foto de tu DNI</string>
+    <string name="register_profile_photo_label">Selecciona una foto de Perfil</string>
+
+    <string name="register_button_register">Registrarse</string>
+    <string name="register_change_photo">Cambiar imagen</string>
+    <string name="register_select_photo">Seleccionar imagen</string>
+
 </resources>

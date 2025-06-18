@@ -40,19 +40,28 @@ class AuthRepositoryImpl @Inject constructor(
         reputationStatusId: RequestBody,
         dniPhoto: MultipartBody.Part?,
         profilePhoto: MultipartBody.Part?
-    ): RegisterResponse {
-        return authApi.register(
-            dni,
-            firstName,
-            lastName,
-            dniExtension,
-            password,
-            phone,
-            email,
-            address,
-            reputationStatusId,
-            dniPhoto,
-            profilePhoto
-        )
+    ): NetworkResult<RegisterResponse> {
+        return try {
+            val response = authApi.register(
+                dni,
+                firstName,
+                lastName,
+                dniExtension,
+                password,
+                phone,
+                email,
+                address,
+                reputationStatusId,
+                dniPhoto,
+                profilePhoto
+            )
+            if (response.isSuccessful && response.body() != null) {
+                NetworkResult.Success(response.body()!!)
+            } else {
+                NetworkResult.Error(response.errorBody()?.string() ?: "Login failed")
+            }
+        } catch (e: Exception) {
+            NetworkResult.Error(e.message ?: "Unknown error")
+        }
     }
 }

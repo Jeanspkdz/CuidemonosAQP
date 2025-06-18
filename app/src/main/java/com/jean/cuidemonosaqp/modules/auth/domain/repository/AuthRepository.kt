@@ -20,5 +20,5 @@ interface AuthRepository {
         reputationStatusId: RequestBody,
         dniPhoto: MultipartBody.Part?,
         profilePhoto: MultipartBody.Part?
-    ): RegisterResponse
+    ): NetworkResult<RegisterResponse>
 }
