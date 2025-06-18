@@ -1,6 +1,5 @@
 package com.jean.cuidemonosaqp.navigation
 
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -13,7 +12,6 @@ import com.jean.cuidemonosaqp.modules.auth.ui.register.RegisterScreen
 import com.jean.cuidemonosaqp.modules.auth.ui.register.RegisterViewModel
 import com.jean.cuidemonosaqp.modules.map.ui.MapScreen
 import com.jean.cuidemonosaqp.modules.profile.ui.ProfileScreen
-import com.jean.cuidemonosaqp.modules.safeZone.ui.create.CreateSafeZoneScreen
 
 @Composable
 fun NavGraph(modifier: Modifier = Modifier) {
@@ -32,9 +30,11 @@ fun NavGraph(modifier: Modifier = Modifier) {
             LoginScreenHost(
                 viewModel = viewModel,
                 onLoginSuccess = {
-                    // Después del login exitoso, navega a la pantalla de crear zona segura
-                    navController.navigate(Routes.CreateSafeZone.route) {
-                        popUpTo(Routes.Auth.Login.route) { inclusive = true }  // Elimina las pantallas anteriores del stack
+
+//                    navController.navigate(Routes.Map.route) {
+                    navController.navigate(Routes.Profile.route) {
+                        popUpTo(Routes.Auth.Login.route) { inclusive = true }
+
                     }
                 },
                 onNavigateToRegister = {
@@ -65,7 +65,7 @@ fun NavGraph(modifier: Modifier = Modifier) {
 
         // Pantalla de Crear Zona Segura (CreateSafeZoneScreen)
         composable(Routes.CreateSafeZone.route) {
-            CreateSafeZoneScreen() // Aquí se navega a la pantalla de creación de zona segura
+//            CreateSafeZoneScreen() // Aquí se navega a la pantalla de creación de zona segura
         }
     }
 }
