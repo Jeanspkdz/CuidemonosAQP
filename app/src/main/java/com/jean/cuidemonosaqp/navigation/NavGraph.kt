@@ -3,6 +3,8 @@ package com.jean.cuidemonosaqp.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -14,8 +16,7 @@ import com.jean.cuidemonosaqp.modules.map.ui.MapScreen
 import com.jean.cuidemonosaqp.modules.profile.ui.ProfileScreen
 
 @Composable
-fun NavGraph(modifier: Modifier = Modifier) {
-    val navController = rememberNavController()
+fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
     // Definir el NavHost y sus rutas
     NavHost(
         navController = navController,

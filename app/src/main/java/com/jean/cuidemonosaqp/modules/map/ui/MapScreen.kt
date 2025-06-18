@@ -124,51 +124,6 @@ fun MapScreen(modifier: Modifier = Modifier) {
             //CurrentLocationMap
             CurrentLocationMap(modifier = Modifier.weight(1f))
 
-
-
-            // Bottom Navigation
-            NavigationBar(
-                containerColor = Color.White,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.Home, contentDescription = "Mapa") },
-                    label = { Text("Mapa", fontSize = 12.sp) },
-                    selected = true,
-                    onClick = { },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = Color(0xFF2196F3),
-                        selectedTextColor = Color(0xFF2196F3),
-                        unselectedIconColor = Color.Gray,
-                        unselectedTextColor = Color.Gray
-                    )
-                )
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.Favorite, contentDescription = "Favoritos") },
-                    label = { Text("Favoritos", fontSize = 12.sp) },
-                    selected = false,
-                    onClick = { },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = Color(0xFF2196F3),
-                        selectedTextColor = Color(0xFF2196F3),
-                        unselectedIconColor = Color.Gray,
-                        unselectedTextColor = Color.Gray
-                    )
-                )
-
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.Person, contentDescription = "Perfil") },
-                    label = { Text("Perfil", fontSize = 12.sp) },
-                    selected = false,
-                    onClick = { },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = Color(0xFF2196F3),
-                        selectedTextColor = Color(0xFF2196F3),
-                        unselectedIconColor = Color.Gray,
-                        unselectedTextColor = Color.Gray
-                    )
-                )
-            }
         }
     }
 }

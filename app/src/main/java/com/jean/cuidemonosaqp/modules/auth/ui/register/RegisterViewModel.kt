@@ -174,7 +174,7 @@ class RegisterViewModel @Inject constructor(
                 }
 
                 // Llamar al use case con NetworkResult pattern - mismo que LoginViewModel
-                when (val result = registerUseCase(
+                when (val result:  NetworkResult<RegisterResponse> = registerUseCase(
                     dniBody,
                     firstNameBody,
                     lastNameBody,
