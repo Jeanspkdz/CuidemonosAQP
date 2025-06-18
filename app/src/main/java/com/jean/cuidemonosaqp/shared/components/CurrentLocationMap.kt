@@ -18,6 +18,8 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -26,12 +28,14 @@ import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.jean.cuidemonosaqp.R
+import com.jean.cuidemonosaqp.modules.points.data.model.PointResponse
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun CurrentLocationMap(modifier: Modifier = Modifier) {
+fun CurrentLocationMap(points: List<PointResponse> = emptyList(), modifier: Modifier = Modifier) {
 
 
     val context = LocalContext.current
@@ -118,13 +122,27 @@ fun CurrentLocationMap(modifier: Modifier = Modifier) {
             isMyLocationEnabled = locationPermissions.allPermissionsGranted,
             mapType = MapType.NORMAL
         )
-    ){
+    ) {
         // Marcador en la ubicación actual
         currentLocation?.let { location ->
             Marker(
                 state = MarkerState(position = location),
                 title = "Mi ubicación",
                 snippet = "Estás aquí"
+            )
+        }
+
+        // Marcadores de puntos seguros
+        points.forEach { point ->
+            val context = LocalContext.current
+            val icon: BitmapDescriptor =
+                BitmapDescriptorFactory.fromResource(R.drawable.secure_point_icon)
+
+            Marker(
+                state = MarkerState(position = LatLng(point.latitude, point.longitude)),
+                title = point.name,
+                snippet = point.category ?: "Seguro",
+                icon = icon
             )
         }
     }

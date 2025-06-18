@@ -44,6 +44,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.MultiplePermissionsState
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -67,12 +69,11 @@ import kotlin.coroutines.resume
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalCoroutinesApi::class)
 @Composable
-fun MapScreen(modifier: Modifier = Modifier) {
+fun MapScreen(modifier: Modifier = Modifier, viewModel: MapViewModel = hiltViewModel()) {
 
+    val points by viewModel.points.collectAsStateWithLifecycle()
 
     var searchText by remember { mutableStateOf("") }
-
-
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -120,9 +121,8 @@ fun MapScreen(modifier: Modifier = Modifier) {
             }
 
 
-
             //CurrentLocationMap
-            CurrentLocationMap(modifier = Modifier.weight(1f))
+            CurrentLocationMap(points = points, modifier = Modifier.weight(1f))
 
         }
     }

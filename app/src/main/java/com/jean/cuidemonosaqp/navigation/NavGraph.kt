@@ -32,8 +32,7 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
                 viewModel = viewModel,
                 onLoginSuccess = {
 
-//                    navController.navigate(Routes.Map.route) {
-                    navController.navigate(Routes.Profile.route) {
+                    navController.navigate(Routes.Map.route) {
                         popUpTo(Routes.Auth.Login.route) { inclusive = true }
 
                     }
