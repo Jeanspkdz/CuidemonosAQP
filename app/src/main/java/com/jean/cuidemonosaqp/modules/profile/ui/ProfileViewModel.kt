@@ -56,6 +56,9 @@ class ProfileViewModel @Inject constructor(val getUserInfoUseCase: GetUserInfoUs
                         Log.d(TAG, "loadProfileData Success ${response.data.toProfile()}")
                         _profileUiState.update { response.data.toProfile() }
                     }
+                    is NetworkResult.Loading -> {
+                        Log.d("LOGIN_LOADING", "Cargando...")
+                    }
                 }
 
             } catch (e: Exception) {
