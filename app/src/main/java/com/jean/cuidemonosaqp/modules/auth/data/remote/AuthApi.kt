@@ -27,5 +27,5 @@ interface AuthApi {
         @Part("reputation_status_id") reputationStatusId: RequestBody,
         @Part dniPhoto: MultipartBody.Part?,
         @Part profilePhoto: MultipartBody.Part?
-    ): RegisterResponse
+    ): Response<RegisterResponse>
 }

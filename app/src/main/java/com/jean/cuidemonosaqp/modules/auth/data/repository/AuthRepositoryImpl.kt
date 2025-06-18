@@ -43,25 +43,23 @@ class AuthRepositoryImpl @Inject constructor(
     ): NetworkResult<RegisterResponse> {
         return try {
             val response = authApi.register(
-                dni = dni,
-                firstName = firstName,
-                lastName = lastName,
-                dniExtension = dniExtension,
-                password = password,
-                phone = phone,
-                email = email,
-                address = address,
-                reputationStatusId = reputationStatusId,
-                dniPhoto = dniPhoto,
-                profilePhoto = profilePhoto
+                dni,
+                firstName,
+                lastName,
+                dniExtension,
+                password,
+                phone,
+                email,
+                address,
+                reputationStatusId,
+                dniPhoto,
+                profilePhoto
             )
-
-            // Aquí podrías guardar el token si lo deseas
-            response.token_refresh?.let { token ->
-                tokenManager.saveAccessToken(token)
+            if (response.isSuccessful && response.body() != null) {
+                NetworkResult.Success(response.body()!!)
+            } else {
+                NetworkResult.Error(response.errorBody()?.string() ?: "Register failed")
             }
-
-            NetworkResult.Success(response)
         } catch (e: Exception) {
             e.printStackTrace()
             NetworkResult.Error(e.localizedMessage ?: "Ha ocurrido un error inesperado durante el registro.")

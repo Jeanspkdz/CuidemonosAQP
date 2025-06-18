@@ -17,8 +17,8 @@ data class RegisterResponse(
     val address: String,
     val reputation_status_id: Int,
     val dni_extension: String?,
-    val dni_photo: String?,
-    val profile_photo: String?,
+    val dni_photo_url: String?,
+    val profile_photo_url: String?,
     val createdAt: String,
     val updatedAt: String,
     val token_refresh: String?
