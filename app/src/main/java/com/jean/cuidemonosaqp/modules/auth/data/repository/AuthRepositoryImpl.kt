@@ -58,10 +58,12 @@ class AuthRepositoryImpl @Inject constructor(
             if (response.isSuccessful && response.body() != null) {
                 NetworkResult.Success(response.body()!!)
             } else {
-                NetworkResult.Error(response.errorBody()?.string() ?: "Login failed")
+                NetworkResult.Error(response.errorBody()?.string() ?: "Register failed")
             }
         } catch (e: Exception) {
-            NetworkResult.Error(e.message ?: "Unknown error")
+            e.printStackTrace()
+            NetworkResult.Error(e.localizedMessage ?: "Ha ocurrido un error inesperado durante el registro.")
         }
     }
+
 }

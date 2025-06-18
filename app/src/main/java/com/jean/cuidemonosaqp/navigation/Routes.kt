@@ -9,4 +9,5 @@ sealed class Routes(val route: String) {
     }
     object Profile : Routes("profile_screen") // Ruta para Profile
     object Map : Routes("profile_map") // Ruta para Profile
+    object CreateSafeZone : Routes("create_safe_zone_screen")
 }

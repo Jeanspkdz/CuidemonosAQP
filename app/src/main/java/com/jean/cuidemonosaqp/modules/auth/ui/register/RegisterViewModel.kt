@@ -3,11 +3,12 @@ package com.jean.cuidemonosaqp.modules.auth.ui.register
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jean.cuidemonosaqp.modules.auth.data.model.RegisterResponse
 import com.jean.cuidemonosaqp.modules.auth.domain.usecase.RegisterUseCase
+import com.jean.cuidemonosaqp.shared.network.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -205,6 +206,7 @@ class RegisterViewModel @Inject constructor(
                 Log.e("REGISTER_EXCEPTION", "Excepción durante registro: ${e.message}", e)
                 _registerState.value = RegisterState(error = "Error inesperado: ${e.message}")
             }
+
         }
     }
 
