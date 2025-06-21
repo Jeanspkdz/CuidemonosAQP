@@ -53,8 +53,10 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
                     }
                 },
                 onNavigateToLogin = {
-                    //
-                    navController.navigate(Routes.Auth.Register.route)
+                    navController.navigate(Routes.Auth.Login.route) {
+                        popUpTo(Routes.Auth.Register.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
                 }
             )
         }
