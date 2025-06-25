@@ -1,4 +1,3 @@
-// modules/auth/data/sync/RegistrationSyncService.kt
 package com.jean.cuidemonosaqp.modules.auth.data.sync
 
 import android.content.Context
@@ -20,8 +19,7 @@ import javax.inject.Singleton
 @Singleton
 class RegistrationSyncService @Inject constructor(
     private val pendingRegistrationDao: PendingRegistrationDao,
-    private val authApi: AuthApi,
-    private val context: Context
+    private val authApi: AuthApi
 ) {
 
     private val maxSyncAttempts = 3
@@ -123,9 +121,9 @@ class RegistrationSyncService @Inject constructor(
             )
 
             if (response.isSuccessful) {
-                // Marcar como sincronizado
-                pendingRegistrationDao.markAsSynced(registration.id)
-                Log.d("SyncService", "Registro ${registration.id} sincronizado exitosamente")
+                // Marcar como sincronizado - ahora retorna Int
+                val updatedRows = pendingRegistrationDao.markAsSynced(registration.id)
+                Log.d("SyncService", "Registro ${registration.id} sincronizado exitosamente. Filas actualizadas: $updatedRows")
                 true
             } else {
                 val errorMsg = "Error HTTP ${response.code()}: ${response.message()}"
@@ -145,12 +143,13 @@ class RegistrationSyncService @Inject constructor(
      * Actualiza el registro con información del intento fallido
      */
     private suspend fun updateFailedSyncAttempt(registration: PendingRegistrationEntity, error: String) {
-        pendingRegistrationDao.updateSyncAttempt(
+        val updatedRows = pendingRegistrationDao.updateSyncAttempt(
             id = registration.id,
             attempts = registration.syncAttempts + 1,
             timestamp = System.currentTimeMillis(),
             error = error
         )
+        Log.d("SyncService", "Intento de sincronización actualizado. Filas afectadas: $updatedRows")
     }
 
     /**
@@ -181,6 +180,47 @@ class RegistrationSyncService @Inject constructor(
     suspend fun getSyncStats(): SyncStats = withContext(Dispatchers.IO) {
         val pendingCount = pendingRegistrationDao.getPendingCount()
         SyncStats(pendingCount = pendingCount)
+    }
+
+    /**
+     * Guardar registro para sincronización
+     */
+    suspend fun saveRegistrationForSync(
+        dni: String,
+        firstName: String,
+        lastName: String,
+        dniExtension: String?,
+        password: String,
+        phone: String,
+        email: String,
+        address: String,
+        reputationStatusId: String,
+        profilePhotoUri: String?,
+        dniPhotoUri: String?
+    ): Boolean {
+        return try {
+            val registration = PendingRegistrationEntity(
+                dni = dni,
+                firstName = firstName,
+                lastName = lastName,
+                dniExtension = dniExtension,
+                password = password,
+                phone = phone,
+                email = email,
+                address = address,
+                reputationStatusId = reputationStatusId,
+                profilePhotoPath = profilePhotoUri,
+                dniPhotoPath = dniPhotoUri
+            )
+
+            // insertPendingRegistration ahora retorna Long (ID)
+            val insertedId = pendingRegistrationDao.insertPendingRegistration(registration)
+            Log.d("SyncService", "Registro guardado con ID: $insertedId")
+            true
+        } catch (e: Exception) {
+            Log.e("SyncService", "Error guardando registro offline: ${e.message}")
+            false
+        }
     }
 }
 

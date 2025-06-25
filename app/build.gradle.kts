@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.fir.declarations.builder.buildScript
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -110,9 +108,9 @@ dependencies {
     implementation ("androidx.compose.material:material-icons-extended")
 
     // Room
-    implementation ("androidx.room:room-runtime:2.5.0")
-    implementation ("androidx.room:room-ktx:2.5.0")
-    kapt ("androidx.room:room-compiler:2.5.0")
+    implementation("androidx.room:room-runtime:2.7.0-alpha10")
+    implementation("androidx.room:room-ktx:2.7.0-alpha10")
+    kapt("androidx.room:room-compiler:2.7.0-alpha10")
 
     // WorkManager
     implementation ("androidx.work:work-runtime-ktx:2.8.1")

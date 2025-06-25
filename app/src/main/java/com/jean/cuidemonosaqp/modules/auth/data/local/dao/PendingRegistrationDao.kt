@@ -7,29 +7,37 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface PendingRegistrationDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert
     suspend fun insertPendingRegistration(registration: PendingRegistrationEntity): Long
 
-    @Query("SELECT * FROM pending_registrations WHERE isSynced = 0 ORDER BY createdAt ASC")
+    @Query("SELECT * FROM pending_registrations WHERE isSynced = 0")
     suspend fun getPendingRegistrations(): List<PendingRegistrationEntity>
 
-    @Query("SELECT * FROM pending_registrations WHERE isSynced = 0 ORDER BY createdAt ASC")
-    fun getPendingRegistrationsFlow(): Flow<List<PendingRegistrationEntity>>
-
     @Update
-    suspend fun updatePendingRegistration(registration: PendingRegistrationEntity)
+    suspend fun updatePendingRegistration(registration: PendingRegistrationEntity): Int
 
     @Query("UPDATE pending_registrations SET isSynced = 1 WHERE id = :id")
-    suspend fun markAsSynced(id: Long)
+    suspend fun markAsSynced(id: Long): Int
 
-    @Query("UPDATE pending_registrations SET syncAttempts = :attempts, lastSyncAttempt = :timestamp, syncError = :error WHERE id = :id")
-    suspend fun updateSyncAttempt(id: Long, attempts: Int, timestamp: Long, error: String?)
+    @Query("""
+        UPDATE pending_registrations 
+        SET syncAttempts = :attempts, 
+            lastSyncAttempt = :timestamp, 
+            syncError = :error 
+        WHERE id = :id
+    """)
+    suspend fun updateSyncAttempt(
+        id: Long,
+        attempts: Int,
+        timestamp: Long,
+        error: String?
+    ): Int
 
     @Delete
-    suspend fun deletePendingRegistration(registration: PendingRegistrationEntity)
+    suspend fun deletePendingRegistration(registration: PendingRegistrationEntity): Int
 
     @Query("DELETE FROM pending_registrations WHERE isSynced = 1")
-    suspend fun deleteSyncedRegistrations()
+    suspend fun deleteSyncedRegistrations(): Int
 
     @Query("SELECT COUNT(*) FROM pending_registrations WHERE isSynced = 0")
     suspend fun getPendingCount(): Int

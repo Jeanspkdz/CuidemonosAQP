@@ -1,4 +1,3 @@
-// modules/auth/data/local/database/AppDatabase.kt
 package com.jean.cuidemonosaqp.modules.auth.data.local.database
 
 import androidx.room.Database

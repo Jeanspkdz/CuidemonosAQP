@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey
 data class PendingRegistrationEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
+
     val dni: String,
     val firstName: String,
     val lastName: String,
@@ -16,8 +17,8 @@ data class PendingRegistrationEntity(
     val email: String,
     val address: String,
     val reputationStatusId: String,
-    val profilePhotoPath: String? = null, // Ruta local del archivo
-    val dniPhotoPath: String? = null, // Ruta local del archivo
+    val profilePhotoPath: String? = null,
+    val dniPhotoPath: String? = null,
     val createdAt: Long = System.currentTimeMillis(),
     val isSynced: Boolean = false,
     val syncAttempts: Int = 0,
