@@ -3,29 +3,36 @@ package com.jean.cuidemonosaqp.modules.profile.ui
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jean.cuidemonosaqp.modules.profile.domain.usecase.GetReviewsForUserUseCase
 import com.jean.cuidemonosaqp.modules.profile.domain.usecase.GetUserInfoUseCase
 import com.jean.cuidemonosaqp.shared.network.NetworkResult
+import com.jean.cuidemonosaqp.modules.user.domain.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ProfileViewModel @Inject constructor(val getUserInfoUseCase: GetUserInfoUseCase) :
+class ProfileViewModel @Inject constructor(
+    val getUserInfoUseCase: GetUserInfoUseCase,
+    val getUserReviewsUseCase: GetReviewsForUserUseCase
+) :
     ViewModel() {
 
     companion object {
         const val TAG = "ProfileViewModel"
     }
 
-    private val _profileUiState = MutableStateFlow<Profile?>(null)
-    val profileUiState: StateFlow<Profile?> = _profileUiState.asStateFlow()
+    private val _userState = MutableStateFlow<UserUI?>(null)
+    val userState: StateFlow<UserUI?> = _userState.asStateFlow()
 
-    private val _reviews = MutableStateFlow<List<Review>>(emptyList())
-    val reviews: StateFlow<List<Review>> = _reviews.asStateFlow()
+    private val _reviews = MutableStateFlow<List<ReviewUI>>(emptyList())
+    val reviews: StateFlow<List<ReviewUI>> = _reviews.asStateFlow()
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
@@ -46,16 +53,19 @@ class ProfileViewModel @Inject constructor(val getUserInfoUseCase: GetUserInfoUs
             try {
                 _isLoading.update { true }
 
-                when (val response = getUserInfoUseCase()) {
+                //TODO : Change for real ID
+                when (val response = getUserInfoUseCase(1.toString())) {
                     is NetworkResult.Error -> {
                         Log.d(TAG, "loadProfileData Error ${response.message}")
                         _errorMessage.update { response.message }
                     }
 
                     is NetworkResult.Success -> {
-                        Log.d(TAG, "loadProfileData Success ${response.data.toProfile()}")
-                        _profileUiState.update { response.data.toProfile() }
+                        Log.d(TAG, "loadProfileData Success ${response.data}")
+                        val data = response.data
+                        _userState.update { data.toUI() }
                     }
+
                     is NetworkResult.Loading -> {
                         Log.d("LOGIN_LOADING", "Cargando...")
                     }
@@ -64,7 +74,7 @@ class ProfileViewModel @Inject constructor(val getUserInfoUseCase: GetUserInfoUs
             } catch (e: Exception) {
                 // Handle Exception
                 Log.d(TAG, "ERROR :  ${e.message}")
-                _errorMessage.update { "Something went wrong" }
+                _errorMessage.update { "Something went wrong." }
             } finally {
                 _isLoading.update { false }
             }
@@ -73,38 +83,27 @@ class ProfileViewModel @Inject constructor(val getUserInfoUseCase: GetUserInfoUs
 
     private fun loadReviews() {
         viewModelScope.launch {
-            val mockReviews = listOf(
-                Review(
-                    id = "1",
-                    author = "María González",
-                    stars = 5,
-                    comment = "Excelente servicio, muy amable y puntual.",
-                    date = "2025-06-01"
-                ),
-                Review(
-                    id = "2",
-                    author = "Carlos Herrera",
-                    stars = 4,
-                    comment = "Buena atención aunque tardó un poco.",
-                    date = "2025-06-10"
-                ),
-                Review(
-                    id = "3",
-                    author = "Lucía Pérez",
-                    stars = 3,
-                    comment = "Regular, esperaba algo más profesional.",
-                    date = "2025-06-15"
-                ),
-                Review(
-                    id = "4",
-                    author = "Juan Díaz",
-                    stars = 5,
-                    comment = "Muy recomendable, volveré a contratar.",
-                    date = "2025-06-17"
-                )
-            )
+            try {
+                when (val response = getUserReviewsUseCase(1.toString())) {
+                    is NetworkResult.Error -> {
+                        Log.d(TAG, "loadProfileData Error ${response.message}")
+                        _errorMessage.update { response.message }
+                    }
 
-            _reviews.value = mockReviews
+                    is NetworkResult.Success -> {
+                        Log.d(TAG, "loadProfileData Success ${response.data}")
+                        val data = response.data
+                        _reviews.update { data.map { it.toUI() } }
+                    }
+
+                    is NetworkResult.Loading -> {
+                        Log.d("LOGIN_LOADING", "Cargando...")
+                    }
+                }
+            } catch (e: Throwable) {
+                Log.d(TAG, "ERROR :  ${e.message}")
+                _errorMessage.update { "Something went wrong." }
+            }
         }
     }
 

@@ -14,6 +14,8 @@ import com.jean.cuidemonosaqp.modules.auth.ui.register.RegisterScreenHost
 import com.jean.cuidemonosaqp.modules.auth.ui.register.RegisterViewModel
 import com.jean.cuidemonosaqp.modules.map.ui.MapScreen
 import com.jean.cuidemonosaqp.modules.profile.ui.ProfileScreen
+import com.jean.cuidemonosaqp.modules.profile.ui.ProfileScreenHost
+import com.jean.cuidemonosaqp.modules.profile.ui.ProfileViewModel
 
 @Composable
 fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
@@ -31,7 +33,6 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
             LoginScreenHost(
                 viewModel = viewModel,
                 onLoginSuccess = {
-
                     navController.navigate(Routes.Map.route) {
                         popUpTo(Routes.Auth.Login.route) { inclusive = true }
 
@@ -57,12 +58,14 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
                         popUpTo(Routes.Auth.Register.route) { inclusive = true }
                         launchSingleTop = true
                     }
+
                 }
             )
         }
 
         composable(Routes.Profile.route) {
-            ProfileScreen()
+            val viewModel = hiltViewModel<ProfileViewModel>()
+            ProfileScreenHost(viewModel = viewModel)
         }
         // Pantalla de Perfil (ProfileScreen)
         composable(Routes.Map.route) {

@@ -46,25 +46,47 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.jean.cuidemonosaqp.R
 import com.jean.cuidemonosaqp.shared.theme.CuidemonosAQPTheme
+import com.jean.cuidemonosaqp.modules.user.domain.model.User
+
 
 @Composable
-fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel()) {
-
-    val profile by viewModel.profileUiState.collectAsStateWithLifecycle()
+fun ProfileScreenHost(
+    viewModel: ProfileViewModel ,
+    modifier: Modifier = Modifier
+) {
+    val user by viewModel.userState.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     val reviews by viewModel.reviews.collectAsStateWithLifecycle()
+
+    ProfileScreen(
+        user = user,
+        isLoading = isLoading,
+        reviews = reviews,
+        onRateUser = viewModel::onCalificarUsuario,
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun ProfileScreen(
+    user: UserUI?,
+    isLoading: Boolean,
+    reviews: List<ReviewUI>,
+    onRateUser: () -> Unit,
+    modifier: Modifier = Modifier
+) {
 
     val context = LocalContext.current
 
 
-    if(isLoading){
+    if (isLoading) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-          CircularProgressIndicator()
+            CircularProgressIndicator()
         }
         return
     }
 
-    if (profile == null) {
+    if (user == null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text(text = "Something went wrong. Please try again.")
         }
@@ -84,7 +106,7 @@ fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel()) {
             Box {
                 AsyncImage(
                     model = ImageRequest.Builder(context)
-                        .data(profile?.profilePhotoUrl)
+                        .data(user.profilePhotoUrl)
                         .placeholder(R.drawable.default_profile)
                         .error(R.drawable.default_profile)
                         .crossfade(true)
@@ -114,7 +136,7 @@ fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel()) {
 
             // Nombre
             Text(
-                text = profile?.fullName ?: "",
+                text = user.fullName ?: "",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
@@ -122,7 +144,7 @@ fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel()) {
 
             // Miembro desde
             Text(
-                text = profile?.memberSince ?: "",
+                text = user?.memberSince ?: "",
                 fontSize = 14.sp,
                 color = Color.Gray
             )
@@ -131,16 +153,16 @@ fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel()) {
 
             // Rating con estrellas
             Row(verticalAlignment = Alignment.CenterVertically) {
-                repeat(profile!!.rating.toInt()) {
+                repeat(5) {
                     Text("⭐", fontSize = 20.sp)
                 }
-                repeat(5 - profile!!.rating.toInt()) {
+                repeat(5 - 5) {
                     Text("☆", fontSize = 23.sp, color = Color.Gray)
                 }
             }
 
             Text(
-                text = "${profile?.rating}/5.0",
+                text = "5.0/5.0",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -155,7 +177,7 @@ fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel()) {
 
             // Botón Calificar Usuario
             Button(
-                onClick = { viewModel.onCalificarUsuario() },
+                onClick = { onRateUser() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
@@ -181,19 +203,19 @@ fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel()) {
             ) {
                 StatItem(
                     icon = "📍",
-                    value = profile!!.monitoredPoints.toString(),
+                    value = user.monitoredPoints.toString(),
                     label = "Puntos Vigilados"
                 )
 
                 StatItem(
                     icon = "⏱️",
-                    value = "${profile!!.surveillanceHours}h",
+                    value = "${user.surveillanceHours}h",
                     label = "Vigilancia"
                 )
 
                 StatItem(
                     icon = "🛡️",
-                    value = "${profile!!.reliability}%",
+                    value = "${user.reliability}%",
                     label = "Confiabilidad"
                 )
             }
@@ -302,6 +324,54 @@ fun StatItem(icon: String, value: String, label: String) {
 @Composable
 private fun ProfileScreenPreview() {
     CuidemonosAQPTheme(dynamicColor = false) {
-        ProfileScreen()
+        ProfileScreen(
+            user = UserUI(
+                id = 1,
+                dni = "74839201",
+                firstName = "Juan",
+                lastName = "Pérez",
+                phone = "+51 912345678",
+                email = "juan.perez@email.com",
+                address = "Av. Los Héroes 123, Arequipa",
+                profilePhotoUrl = "https://example.com/profile.jpg",
+                memberSince = "2022-03-15",
+                rating = 4.5,
+                monitoredPoints = 12,
+                surveillanceHours = 320,
+                reliability = 95
+            ),
+            isLoading = false,
+            reviews = listOf(
+                ReviewUI(
+                    id = "1",
+                    author = "María González",
+                    stars = 5,
+                    comment = "Excelente servicio, muy amable y puntual.",
+                    date = "2025-06-01"
+                ),
+                ReviewUI(
+                    id = "2",
+                    author = "Carlos Herrera",
+                    stars = 4,
+                    comment = "Buena atención aunque tardó un poco.",
+                    date = "2025-06-10"
+                ),
+                ReviewUI(
+                    id = "3",
+                    author = "Lucía Pérez",
+                    stars = 3,
+                    comment = "Regular, esperaba algo más profesional.",
+                    date = "2025-06-15"
+                ),
+                ReviewUI(
+                    id = "4",
+                    author = "Juan Díaz",
+                    stars = 5,
+                    comment = "Muy recomendable, volveré a contratar.",
+                    date = "2025-06-17"
+                )
+            ),
+            onRateUser = {}
+        )
     }
 }

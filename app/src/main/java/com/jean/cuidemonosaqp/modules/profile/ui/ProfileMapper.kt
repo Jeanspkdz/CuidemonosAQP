@@ -1,19 +1,27 @@
 package com.jean.cuidemonosaqp.modules.profile.ui
 
 import android.annotation.SuppressLint
-import com.jean.cuidemonosaqp.modules.profile.data.model.UserInfoResponse
+import com.jean.cuidemonosaqp.modules.user.domain.model.User
+import com.jean.cuidemonosaqp.modules.userreviews.domain.model.UserReview
 import com.jean.cuidemonosaqp.shared.utils.formatDate
 
 @SuppressLint("NewApi")
-fun UserInfoResponse.toProfile(): Profile = Profile(
+fun User.toUI(): UserUI = UserUI(
     id = id,
     dni = dni,
-    firstName = first_name,
-    lastName = last_name,
+    firstName = firstName,
+    lastName = lastName,
     phone = phone,
     email = email,
     address = address,
-    profilePhotoUrl = profile_photo_url,
+    profilePhotoUrl = profilePhotoUrl,
     memberSince = formatDate(createdAt)
 )
 
+fun UserReview.toUI(): ReviewUI = ReviewUI(
+    id = id.toString(),
+    author = "${reviewer.firstName} ${reviewer.lastName}",
+    stars = score,
+    comment = comment,
+    date = createdAt.substring(0, 10)
+)

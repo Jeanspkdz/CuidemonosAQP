@@ -1,5 +1,6 @@
 package com.jean.cuidemonosaqp.modules.auth.data.repository
 
+import android.util.Log
 import com.jean.cuidemonosaqp.modules.auth.data.model.*
 import com.jean.cuidemonosaqp.modules.auth.data.remote.AuthApi
 import com.jean.cuidemonosaqp.modules.auth.domain.repository.AuthRepository
@@ -14,17 +15,32 @@ class AuthRepositoryImpl @Inject constructor(
     private val tokenManager: TokenManager
 ) : AuthRepository {
 
+    companion object {
+        const val TAG = "AuthRepositoryImpl"
+    }
+
     override suspend fun login(emailOrDni: String, password: String): NetworkResult<LoginResponse> {
         return try {
             val response = authApi.login(LoginRequest(emailOrDni, password))
+            Log.d(TAG, "Response: $response")
             if (response.isSuccessful && response.body() != null) {
                 tokenManager.saveAccessToken(response.body()!!.accessToken)
                 NetworkResult.Success(response.body()!!)
             } else {
-                NetworkResult.Error(response.errorBody()?.string() ?: "Login failed")
+                val errorResponse =response.errorBody()?.string()
+                Log.d(TAG, "Not Successful: $errorResponse")
+                val code = response.code()
+
+                val errorMessage = when(code){
+                    400 -> "DNI o Email y contraseña son requeridos"
+                    401 -> "Credenciales Invalidas"
+                    500 -> "Error del Servidor"
+                    else -> "Algo salió mal"
+                }
+                NetworkResult.Error(errorMessage)
             }
         } catch (e: Exception) {
-            NetworkResult.Error(e.message ?: "Unknown error")
+            NetworkResult.Error(e.message ?: "Algo salió mal")
         }
     }
 

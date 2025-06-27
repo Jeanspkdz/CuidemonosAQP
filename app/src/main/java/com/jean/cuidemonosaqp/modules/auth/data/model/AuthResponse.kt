@@ -3,7 +3,8 @@ package com.jean.cuidemonosaqp.modules.auth.data.model
 //LOGIN
 data class LoginResponse(
     val accessToken: String,
-    val refreshToken: String
+    val refreshToken: String,
+    val id:String
 )
 
 // REGISTER

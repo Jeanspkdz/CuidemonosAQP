@@ -51,8 +51,8 @@ class LoginViewModel @Inject constructor(
                         _loginState.value = LoginState(success = true)
                     }
                     is NetworkResult.Error -> {
-                        Log.e("LOGIN_ERROR", "Error: ${result.message}")
-                        _loginState.value = LoginState(error = result.message ?: "Error desconocido")
+                        Log.d("LOGIN_ERROR", "Error: ${result.message}")
+                        _loginState.value = LoginState(error = result.message)
                     }
                     is NetworkResult.Loading -> {
                         Log.d("LOGIN_LOADING", "Cargando...")
