@@ -25,6 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.jean.cuidemonosaqp.modules.profile.ui.components.AddReviewDialog
 import com.jean.cuidemonosaqp.modules.profile.ui.components.ProfileAvatar
 import com.jean.cuidemonosaqp.modules.profile.ui.components.ProfileStat
 import com.jean.cuidemonosaqp.modules.profile.ui.components.ProfileStatistics
@@ -146,7 +147,13 @@ fun ProfileScreen(
         }
 
         if(showAddReviewDialog){
-          //TODO
+            AddReviewDialog(
+                onDismiss = {onHideDialog()},
+                rating = rating,
+                onRatingSelected = onRatingSelected,
+                userReviewComment = userReviewComment,
+                onUserReviewCommentChanged = onUserReviewCommentChanged,
+            )
         }
 
         Spacer(modifier = Modifier.height(24.dp))

@@ -37,6 +37,15 @@ class ProfileViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
+    private val _showAddReviewDialog = MutableStateFlow(false)
+    val showAddReviewDialog = _showAddReviewDialog.asStateFlow()
+
+    private val _rating = MutableStateFlow(0)
+    val rating = _rating.asStateFlow()
+
+    private val _userReviewComment = MutableStateFlow("")
+    val userReviewComment = _userReviewComment.asStateFlow()
+
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage = _errorMessage.asStateFlow()
 
@@ -107,42 +116,20 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    fun onCalificarUsuario() {
-        viewModelScope.launch {
-        }
+    fun showDialog(){
+        _showAddReviewDialog.update { true }
     }
-
-    fun onContactoSeguro() {
-        viewModelScope.launch {
-        }
+    fun hideDialog(){
+        _showAddReviewDialog.update { false }
     }
-
-    fun calificarUsuario(estrellas: Int, comentario: String) {
-        viewModelScope.launch {
-
-        }
+    fun onRatingSelected(rating: Int){
+        _rating.update { rating }
     }
-
-    fun iniciarContactoSeguro() {
-        viewModelScope.launch {
-        }
-    }
-
-    fun limpiarEvento() {
-    }
-
-    fun limpiarError() {
-
-    }
-
-    fun recargarPerfil() {
+    fun onUserReviewCommentChanged(comment : String){
+        _userReviewComment.update { comment }
     }
 }
 
 sealed class ProfileEvent {
-    object MostrarDialogoCalificacion : ProfileEvent()
-    object AbrirContactoSeguro : ProfileEvent()
-    object CalificacionEnviada : ProfileEvent()
-    object ContactoIniciado : ProfileEvent()
-    data class Error(val mensaje: String) : ProfileEvent()
+
 }
