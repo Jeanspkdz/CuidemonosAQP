@@ -28,10 +28,11 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun AddReviewDialog(
     rating: Int,
-    onRatingSelected: (score: Int) -> Unit,
+    onSelectRating: (score: Int) -> Unit,
     userReviewComment: String,
-    onUserReviewCommentChanged: (comment: String) -> Unit,
+    onChangeUserReviewComment: (comment: String) -> Unit,
     onDismiss: () -> Unit,
+    onCreateUserReview: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     AlertDialog(
@@ -52,7 +53,7 @@ fun AddReviewDialog(
                 ) {
                     repeat(5) { index ->
                         IconButton(
-                            onClick = { onRatingSelected(index + 1) },
+                            onClick = { onSelectRating(index + 1) },
                             modifier = Modifier.size(32.dp)
                         ) {
                             Icon(
@@ -74,7 +75,7 @@ fun AddReviewDialog(
                 // Comentario
                 OutlinedTextField(
                     value = userReviewComment,
-                    onValueChange = { onUserReviewCommentChanged(it) },
+                    onValueChange = { onChangeUserReviewComment(it) },
                     label = { Text("Comentario") },
                     placeholder = { Text("Escribe tu experiencia con este usuario...") },
                     modifier = Modifier
@@ -83,13 +84,11 @@ fun AddReviewDialog(
                     maxLines = 4
                 )
             }
-
-
         },
         onDismissRequest = { onDismiss() },
         confirmButton = {
             TextButton(
-                onClick = {}
+                onClick = { onCreateUserReview()}
             ) {
                 Text("Enviar")
             }

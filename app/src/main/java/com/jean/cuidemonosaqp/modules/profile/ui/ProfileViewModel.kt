@@ -122,12 +122,16 @@ class ProfileViewModel @Inject constructor(
     fun hideDialog(){
         _showAddReviewDialog.update { false }
     }
-    fun onRatingSelected(rating: Int){
+    fun onSelectRating(rating: Int){
         _rating.update { rating }
     }
-    fun onUserReviewCommentChanged(comment : String){
+    fun onChangeUserReviewComment(comment : String){
         _userReviewComment.update { comment }
     }
+    fun onCreateUserReview(){
+        //Call UseCase
+    }
+
 }
 
 sealed class ProfileEvent {

@@ -19,7 +19,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -51,12 +50,13 @@ fun ProfileScreenHost(
         user = user,
         reviews = reviews,
         rating = rating,
-        onRatingSelected = viewModel::onRatingSelected,
+        onSelectRating = viewModel::onSelectRating,
         userReviewComment = userReviewComment,
-        onUserReviewCommentChanged = viewModel::onUserReviewCommentChanged,
+        onChangeUserReviewComment = viewModel::onChangeUserReviewComment,
         onShowDialog = viewModel::showDialog,
         onHideDialog = viewModel::hideDialog,
         showAddReviewDialog = showAddReviewDialog,
+        onCreateUserReview = viewModel::onCreateUserReview,
         isLoading = isLoading,
         modifier = modifier,
     )
@@ -71,13 +71,12 @@ fun ProfileScreen(
     onHideDialog: () -> Unit,
     showAddReviewDialog: Boolean,
     rating: Int,
-    onRatingSelected: (score: Int) -> Unit,
+    onSelectRating: (score: Int) -> Unit,
     userReviewComment: String,
-    onUserReviewCommentChanged: (comment: String) -> Unit,
+    onChangeUserReviewComment: (comment: String) -> Unit,
+    onCreateUserReview: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-
-    val context = LocalContext.current
 
     if (isLoading) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -150,9 +149,10 @@ fun ProfileScreen(
             AddReviewDialog(
                 onDismiss = {onHideDialog()},
                 rating = rating,
-                onRatingSelected = onRatingSelected,
+                onSelectRating = onSelectRating,
                 userReviewComment = userReviewComment,
-                onUserReviewCommentChanged = onUserReviewCommentChanged,
+                onChangeUserReviewComment = onChangeUserReviewComment ,
+                onCreateUserReview = onCreateUserReview
             )
         }
 
@@ -224,12 +224,13 @@ private fun ProfileScreenPreview() {
                 )
             ),
             rating = 4,
-            onRatingSelected = {},
+            onSelectRating = {},
             userReviewComment = "Buena informacion",
-            onUserReviewCommentChanged = {},
+            onChangeUserReviewComment = {},
             onShowDialog = {},
             onHideDialog = {},
             showAddReviewDialog = false,
+            onCreateUserReview = {}
         )
     }
 }
