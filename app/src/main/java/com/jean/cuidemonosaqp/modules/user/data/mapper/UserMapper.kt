@@ -1,10 +1,10 @@
 package com.jean.cuidemonosaqp.modules.user.data.mapper
 
-import com.jean.cuidemonosaqp.modules.user.data.dto.UserResponse
+import com.jean.cuidemonosaqp.modules.user.data.dto.UserResponseDto
 import com.jean.cuidemonosaqp.modules.user.domain.model.User
 
 
-fun UserResponse.toDomain(): User = User(
+fun UserResponseDto.toDomain(): User = User(
     id = id,
     dni = dni,
     dniExtension = dniExtension,

@@ -29,13 +29,13 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.jean.cuidemonosaqp.R
-import com.jean.cuidemonosaqp.modules.points.data.model.PointResponse
+import com.jean.cuidemonosaqp.modules.safeZone.data.dto.SafeZoneResponseDTO
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun CurrentLocationMap(points: List<PointResponse> = emptyList(), modifier: Modifier = Modifier) {
+fun CurrentLocationMap(points: List<SafeZoneResponseDTO> = emptyList(), modifier: Modifier = Modifier) {
 
 
     val context = LocalContext.current

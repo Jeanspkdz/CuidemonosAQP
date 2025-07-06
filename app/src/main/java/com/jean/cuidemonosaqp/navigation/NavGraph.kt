@@ -13,6 +13,8 @@ import com.jean.cuidemonosaqp.modules.auth.ui.login.LoginViewModel
 import com.jean.cuidemonosaqp.modules.auth.ui.register.RegisterScreenHost
 import com.jean.cuidemonosaqp.modules.auth.ui.register.RegisterViewModel
 import com.jean.cuidemonosaqp.modules.map.ui.MapScreen
+import com.jean.cuidemonosaqp.modules.map.ui.MapScreenHost
+import com.jean.cuidemonosaqp.modules.map.ui.MapViewModel
 import com.jean.cuidemonosaqp.modules.profile.ui.ProfileScreen
 import com.jean.cuidemonosaqp.modules.profile.ui.ProfileScreenHost
 import com.jean.cuidemonosaqp.modules.profile.ui.ProfileViewModel
@@ -69,7 +71,8 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
         }
         // Pantalla de Perfil (ProfileScreen)
         composable(Routes.Map.route) {
-            MapScreen()
+            val viewModel = hiltViewModel<MapViewModel>()
+            MapScreenHost(viewModel = viewModel)
         }
 
         // Pantalla de Crear Zona Segura (CreateSafeZoneScreen)

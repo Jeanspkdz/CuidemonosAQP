@@ -3,22 +3,23 @@ package com.jean.cuidemonosaqp.modules.map.ui
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jean.cuidemonosaqp.modules.points.data.model.PointResponse
-import com.jean.cuidemonosaqp.modules.points.domain.usecase.GetAllPointsUseCase
+import com.jean.cuidemonosaqp.modules.safeZone.data.dto.SafeZoneResponseDTO
+import com.jean.cuidemonosaqp.modules.safeZone.domain.usecase.GetAllSafeZonesUseCase
 import com.jean.cuidemonosaqp.shared.network.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
-    private val getAllPointsUseCase: GetAllPointsUseCase
+    private val getAllPointsUseCase: GetAllSafeZonesUseCase
 ) : ViewModel(){
 
-    private val _points = MutableStateFlow<List<PointResponse>>(emptyList())
-    val points: StateFlow<List<PointResponse>> = _points
+    private val _points = MutableStateFlow<List<SafeZoneResponseDTO>>(emptyList())
+    val points = _points.asStateFlow()
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error

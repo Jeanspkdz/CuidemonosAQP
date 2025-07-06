@@ -2,7 +2,7 @@ package com.jean.cuidemonosaqp.modules.user.data.dto
 
 import com.google.gson.annotations.SerializedName
 
-data class UserResponse(
+data class UserResponseDto(
     val id: Int,
     val dni: String,
     @SerializedName("dni_extension") val dniExtension: String,
