@@ -1,6 +1,7 @@
 package com.jean.cuidemonosaqp.shared.di
 
 import android.content.Context
+import com.jean.cuidemonosaqp.BuildConfig
 import com.jean.cuidemonosaqp.shared.network.AuthInterceptor
 import com.jean.cuidemonosaqp.shared.preferences.TokenManager
 import dagger.Module
@@ -36,7 +37,7 @@ object AppModule {
     @Singleton
     fun provideRetrofit(client: OkHttpClient): Retrofit =
         Retrofit.Builder()
-            .baseUrl("https://cuidemonosaqp-backend.onrender.com")
+            .baseUrl(BuildConfig.API_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
