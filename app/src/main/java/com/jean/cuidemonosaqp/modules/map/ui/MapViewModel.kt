@@ -18,8 +18,8 @@ class MapViewModel @Inject constructor(
     private val getAllPointsUseCase: GetAllSafeZonesUseCase
 ) : ViewModel(){
 
-    private val _points = MutableStateFlow<List<SafeZoneResponseDTO>>(emptyList())
-    val points = _points.asStateFlow()
+    private val _safeZones = MutableStateFlow<List<SafeZoneResponseDTO>>(emptyList())
+    val safeZones = _safeZones.asStateFlow()
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
@@ -32,7 +32,7 @@ class MapViewModel @Inject constructor(
         viewModelScope.launch {
             when (val result = getAllPointsUseCase()) {
                 is NetworkResult.Success -> {
-                    _points.value = result.data
+                    _safeZones.value = result.data
                     Log.d("MapViewModel", "SUCCESS: ${result.data}")
                 }
                 is NetworkResult.Error -> {

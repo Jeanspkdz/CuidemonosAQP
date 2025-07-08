@@ -11,10 +11,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -33,18 +36,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.jean.cuidemonosaqp.R
 import com.jean.cuidemonosaqp.modules.safeZone.data.dto.SafeZoneResponseDTO
 import com.jean.cuidemonosaqp.shared.components.CurrentLocationMap
+import com.jean.cuidemonosaqp.shared.theme.CuidemonosAQPTheme
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @Composable
-fun MapScreenHost(viewModel: MapViewModel = hiltViewModel()) {
-    val points by viewModel.points.collectAsStateWithLifecycle()
+fun MapScreenHost(
+    viewModel: MapViewModel = hiltViewModel(),
+    onNavigateToCreateSafeZone: () -> Unit,
+    onNavigateToSafeZoneDetail: (id:String) -> Unit,
+) {
+    val safeZones by viewModel.safeZones.collectAsStateWithLifecycle()
 
     MapScreen(
-        points = points
+        safeZones = safeZones,
+        onNavigateToCreateSafeZone = onNavigateToCreateSafeZone,
+        onNavigateToSafeZoneDetail = onNavigateToSafeZoneDetail
     )
 }
 
@@ -53,7 +64,9 @@ fun MapScreenHost(viewModel: MapViewModel = hiltViewModel()) {
 @Composable
 fun MapScreen(
     modifier: Modifier = Modifier,
-    points: List<SafeZoneResponseDTO>
+    safeZones: List<SafeZoneResponseDTO>,
+    onNavigateToCreateSafeZone: () -> Unit = {},
+    onNavigateToSafeZoneDetail: (id:String) -> Unit = {},
 ) {
 
     var searchText by remember { mutableStateOf("") }
@@ -104,18 +117,37 @@ fun MapScreen(
             }
 
 
-            //CurrentLocationMap
-            CurrentLocationMap(points = points, modifier = Modifier.weight(1f))
+            Box(modifier = Modifier.weight(1f)) {
+                CurrentLocationMap(
+                    safeZones = safeZones,
+                    modifier = Modifier.fillMaxSize(),
+                    onNavigateToSafeZoneDetail = onNavigateToSafeZoneDetail
+                )
+                IconButton(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .size(64.dp),
+                    onClick = { onNavigateToCreateSafeZone() }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AddCircle,
+                        contentDescription = "Agregar PuntoSeguro",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
 
         }
     }
 }
 
-
 @Preview
 @Composable
 private fun MapScreenPreview() {
-    MapScreen(
-        points = emptyList()
-    )
+    CuidemonosAQPTheme {
+        MapScreen(
+            safeZones = emptyList()
+        )
+    }
 }

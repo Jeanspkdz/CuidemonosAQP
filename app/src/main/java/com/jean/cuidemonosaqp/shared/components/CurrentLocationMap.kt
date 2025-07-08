@@ -2,15 +2,22 @@ package com.jean.cuidemonosaqp.shared.components
 
 import android.Manifest
 import android.location.Location
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.MultiplePermissionsState
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -35,8 +42,22 @@ import kotlin.coroutines.resume
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun CurrentLocationMap(points: List<SafeZoneResponseDTO> = emptyList(), modifier: Modifier = Modifier) {
+fun CurrentLocationMap(
+    modifier: Modifier = Modifier,
+    safeZones: List<SafeZoneResponseDTO> = emptyList(),
+    onNavigateToSafeZoneDetail: (id:String) -> Unit,
+) {
 
+    val isPreview = LocalInspectionMode.current
+    if (isPreview) {
+        Box(
+            modifier = modifier.background(Color.LightGray),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("Mapa (Preview)", color = Color.Black)
+        }
+        return
+    }
 
     val context = LocalContext.current
     // Estados para la ubicación y el mapa
@@ -133,16 +154,16 @@ fun CurrentLocationMap(points: List<SafeZoneResponseDTO> = emptyList(), modifier
         }
 
         // Marcadores de puntos seguros
-        points.forEach { point ->
-            val context = LocalContext.current
+        safeZones.forEach { safeZone ->
             val icon: BitmapDescriptor =
                 BitmapDescriptorFactory.fromResource(R.drawable.secure_point_icon)
 
             Marker(
-                state = MarkerState(position = LatLng(point.latitude, point.longitude)),
-                title = point.name,
-                snippet = point.category ?: "Seguro",
-                icon = icon
+                state = MarkerState(position = LatLng(safeZone.latitude, safeZone.longitude)),
+                title = safeZone.name,
+                snippet = safeZone.category ?: "Seguro",
+                icon = icon,
+                onInfoWindowClick = {onNavigateToSafeZoneDetail(safeZone.id.toString())}
             )
         }
     }
@@ -162,7 +183,7 @@ fun LocationPermissionDialog(
     locationPermissions: MultiplePermissionsState
 ) {
     if (locationPermissions.shouldShowRationale || !locationPermissions.allPermissionsGranted) {
-        androidx.compose.material3.AlertDialog(
+        AlertDialog(
             onDismissRequest = {},
             title = {
                 Text("Permisos de Ubicación Requeridos")
@@ -173,7 +194,7 @@ fun LocationPermissionDialog(
                 )
             },
             confirmButton = {
-                androidx.compose.material3.TextButton(
+                TextButton(
                     onClick = {
                         locationPermissions.launchMultiplePermissionRequest()
                     }
@@ -182,7 +203,7 @@ fun LocationPermissionDialog(
                 }
             },
             dismissButton = {
-                androidx.compose.material3.TextButton(onClick = {}) {
+                TextButton(onClick = {}) {
                     Text("Cancelar")
                 }
             }
