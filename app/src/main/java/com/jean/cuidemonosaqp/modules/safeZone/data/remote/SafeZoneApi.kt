@@ -16,10 +16,8 @@ interface SafeZoneApi {
     @GET("/safezones")
     suspend fun getAllSafeZones(): Response<List<SafeZoneResponseDTO>>
 
-<<<<<<< HEAD
     @GET("/safezones/{id}")
     suspend fun getSafeZoneById(@Path("id") id : String): Response<SafeZoneResponseDTO>
-=======
     @Multipart
     @POST("safezones")
     suspend fun createSafeZoneWithImage(
@@ -35,5 +33,4 @@ interface SafeZoneApi {
         @Part("rating") rating: RequestBody,
         @Part photo_url: MultipartBody.Part?
     ): SafeZoneResponse
->>>>>>> ba19bfb (Se integra la funcionalidad para crear zonas)
 }
