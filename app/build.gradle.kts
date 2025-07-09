@@ -36,7 +36,7 @@ android {
             buildConfigField("String", "API_URL", "\"https://cuidemonosaqp-backend.onrender.com\"")
         }
         debug {
-            buildConfigField("String", "API_URL", "\"http://10.0.2.2:3000\"")
+            buildConfigField("String", "API_URL", "\"http://10.7.124.80:3000/\"")
         }
 
     }

@@ -6,6 +6,9 @@ import com.jean.cuidemonosaqp.modules.safeZone.data.remote.SafeZoneApi
 import com.jean.cuidemonosaqp.modules.safeZone.domain.repository.SafeZoneRepository
 import com.jean.cuidemonosaqp.shared.network.NetworkResult
 import javax.inject.Inject
+import com.jean.cuidemonosaqp.modules.safeZone.data.model.SafeZoneResponse
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 
 class SafeZoneRepositoryImp @Inject constructor(
     private val safeZoneApi: SafeZoneApi
@@ -47,5 +50,24 @@ class SafeZoneRepositoryImp @Inject constructor(
             Log.e("PointRepositoryImp", "Exception GetZoneById: ${e.message}", e)
             NetworkResult.Error(e.message ?: "Algo salio mal")
         }
+    }
+
+    override suspend fun createSafeZoneWithImage(
+        fields: Map<String, RequestBody>,
+        photoPart: MultipartBody.Part?
+    ): SafeZoneResponse {
+        return safeZoneApi.createSafeZoneWithImage(
+            name = fields["name"]!!,
+            description = fields["description"],
+            category = fields["category"],
+            justification = fields["justification"]!!,
+            assumesResponsibility = fields["assumes_responsibility"]!!,
+            latitude = fields["latitude"]!!,
+            longitude = fields["longitude"]!!,
+            statusId = fields["status_id"]!!,
+            userIds = fields["user_ids"]!!,
+            rating = fields["rating"]!!,
+            photo_url = photoPart
+        )
     }
 }

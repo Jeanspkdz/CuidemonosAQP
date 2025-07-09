@@ -19,6 +19,7 @@ import com.jean.cuidemonosaqp.modules.map.ui.MapViewModel
 import com.jean.cuidemonosaqp.modules.profile.ui.ProfileScreen
 import com.jean.cuidemonosaqp.modules.profile.ui.ProfileScreenHost
 import com.jean.cuidemonosaqp.modules.profile.ui.ProfileViewModel
+import com.jean.cuidemonosaqp.modules.safeZone.ui.createPoint.CreateSafeZoneScreen
 import com.jean.cuidemonosaqp.modules.safeZone.ui.safeZoneDetail.SafeZoneDetailScreenHost
 import com.jean.cuidemonosaqp.modules.safeZone.ui.safeZoneDetail.SafeZoneDetailViewModel
 
@@ -86,8 +87,9 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
         }
 
         composable<Routes.SafeZone.Create>() {
+            CreateSafeZoneScreen()
 //            CreateSafeZoneScreen() // Aquí se navega a la pantalla de creación de zona segura
-            Text("Crear SafeZone")
+            //Text("Crear SafeZone")
         }
         composable<Routes.SafeZone.Detail> {
             val viewModel  = hiltViewModel<SafeZoneDetailViewModel>()
