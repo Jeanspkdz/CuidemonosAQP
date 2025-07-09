@@ -13,6 +13,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -20,10 +21,13 @@ import coil.request.ImageRequest
 import com.jean.cuidemonosaqp.R
 
 @Composable
-fun ProfileAvatar(profilePhotoUrl: String,  modifier: Modifier = Modifier) {
+fun ProfileAvatar(
+    profilePhotoUrl: String,
+    modifier: Modifier = Modifier,
+) {
     val context = LocalContext.current
 
-    Box {
+    Box(modifier = modifier) {
         AsyncImage(
             model = ImageRequest.Builder(context)
                 .data(profilePhotoUrl)
@@ -51,5 +55,12 @@ fun ProfileAvatar(profilePhotoUrl: String,  modifier: Modifier = Modifier) {
             Text("✓", color = Color.White, fontSize = 16.sp)
         }
     }
+}
 
+@Preview
+@Composable
+private fun ProfileAvatarPreview() {
+    ProfileAvatar(
+        profilePhotoUrl = "localhost:3000/fakeUrl.jpg",
+    )
 }

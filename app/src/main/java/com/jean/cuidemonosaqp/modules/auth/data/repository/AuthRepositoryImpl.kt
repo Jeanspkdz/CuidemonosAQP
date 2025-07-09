@@ -25,6 +25,7 @@ class AuthRepositoryImpl @Inject constructor(
             Log.d(TAG, "Response: $response")
             if (response.isSuccessful && response.body() != null) {
                 tokenManager.saveAccessToken(response.body()!!.accessToken)
+                tokenManager.saveUserId(response.body()!!.id)
                 NetworkResult.Success(response.body()!!)
             } else {
                 val errorResponse =response.errorBody()?.string()

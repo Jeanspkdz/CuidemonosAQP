@@ -23,7 +23,29 @@ class SafeZoneRepositoryImp @Inject constructor(
             }
         } catch (e: Exception) {
             Log.e("PointRepositoryImp", "Exception: ${e.message}", e)
-            NetworkResult.Error(e.message ?: "Excepción desconocida al obtener puntos")
+            NetworkResult.Error(e.message ?: "Algo salio mal")
+        }
+    }
+
+    override suspend fun getSafeZoneById(id:String): NetworkResult<SafeZoneResponseDTO> {
+        return try {
+            val response = safeZoneApi.getSafeZoneById(id)
+            val bodyResponse =  response.body()
+            if(response.isSuccessful && bodyResponse !== null){
+                NetworkResult.Success(bodyResponse)
+            }else {
+                val errCode = response.code()
+                val errMessage = when(errCode){
+                    404 -> "Zona no Encontrada"
+                    500 -> "Error al Encontrar la Zona"
+                    else -> "Error Inesperado"
+                }
+                NetworkResult.Error(errMessage)
+            }
+
+        }catch (e: Exception){
+            Log.e("PointRepositoryImp", "Exception GetZoneById: ${e.message}", e)
+            NetworkResult.Error(e.message ?: "Algo salio mal")
         }
     }
 }

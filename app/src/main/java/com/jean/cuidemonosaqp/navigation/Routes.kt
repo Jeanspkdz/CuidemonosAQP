@@ -21,7 +21,7 @@ sealed class Routes {
     }
 
     @Serializable
-    data object Profile : Routes()
+    data class Profile(val id: String) : Routes()
 
     @Serializable
     data object Map : Routes()

@@ -101,7 +101,7 @@ fun ProfileScreen(
     ) {
 
         ProfileAvatar(
-            profilePhotoUrl = user.profilePhotoUrl
+            profilePhotoUrl = user.profilePhotoUrl,
         )
 
         Spacer(modifier = Modifier.height(16.dp))

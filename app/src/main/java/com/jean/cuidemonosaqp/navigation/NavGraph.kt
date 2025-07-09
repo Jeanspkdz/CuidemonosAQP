@@ -91,7 +91,9 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
         }
         composable<Routes.SafeZone.Detail> {
             val viewModel  = hiltViewModel<SafeZoneDetailViewModel>()
-            SafeZoneDetailScreenHost(viewModel)
+            SafeZoneDetailScreenHost(viewModel = viewModel , onNavigateToUserProfile = {userId ->
+                navController.navigate(Routes.Profile(id = userId))
+            })
         }
     }
 }

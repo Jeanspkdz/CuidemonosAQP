@@ -20,4 +20,11 @@ class TokenManager @Inject constructor(@ApplicationContext context: Context) {
     fun clearToken() {
         prefs.edit().remove("access_token").apply()
     }
+
+    fun saveUserId(userId: String) {
+        prefs.edit().putString("user_id", userId).apply()
+    }
+    fun getUserId(): String? {
+        return prefs.getString("user_id", null)
+    }
 }

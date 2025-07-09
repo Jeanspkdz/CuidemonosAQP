@@ -11,6 +11,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -31,9 +32,8 @@ data class TopLevelRoute(
 @Composable
 fun BottomNavigationBar(
     navController: NavController,
-    currentDestination: NavDestination?
+    currentDestination: NavDestination?,
 ) {
-
 
     val navBarItems = listOf(
         TopLevelRoute(
@@ -49,7 +49,7 @@ fun BottomNavigationBar(
         TopLevelRoute(
             icon = Icons.Default.Person,
             label = "Profile",
-            route = Routes.Profile
+            route = Routes.Profile(id="1")//TODO Update id
         ),
     )
 

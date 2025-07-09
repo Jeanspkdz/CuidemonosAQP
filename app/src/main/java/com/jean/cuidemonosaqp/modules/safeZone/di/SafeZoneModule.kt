@@ -16,13 +16,13 @@ object SafeZoneModule {
 
     @Provides
     @Singleton
-    fun providePointsApi(retrofit: Retrofit): SafeZoneApi {
+    fun provideSafeZoneApi(retrofit: Retrofit): SafeZoneApi {
         return retrofit.create(SafeZoneApi::class.java)
     }
 
     @Provides
     @Singleton
-    fun providePointRepository(pointApi: SafeZoneApi): SafeZoneRepository {
+    fun provideSafeZoneRepository(pointApi: SafeZoneApi): SafeZoneRepository {
         return SafeZoneRepositoryImp(pointApi)
     }
 }
