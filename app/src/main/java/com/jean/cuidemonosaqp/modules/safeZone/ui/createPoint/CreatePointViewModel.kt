@@ -2,6 +2,7 @@ package com.jean.cuidemonosaqp.modules.safeZone.ui.createPoint
 
 import android.content.ContentResolver
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jean.cuidemonosaqp.modules.safeZone.domain.usecase.CreateSafeZoneUseCase
@@ -39,6 +40,17 @@ class CreateSafeZoneViewModel @Inject constructor(
     fun submit(contentResolver: ContentResolver) {
         _state.update { it.copy(isLoading = true, error = null, success = false) }
 
+        Log.d("CreateSafeZoneViewModel", "Iniciando creación de zona segura")
+        Log.d("CreateSafeZoneViewModel", "Datos: ${state.value}")
+
+        // Validar datos requeridos
+        if (state.value.name.isBlank() || state.value.justification.isBlank() ||
+            state.value.latitude.isBlank() || state.value.longitude.isBlank() ||
+            state.value.statusId.isBlank() || state.value.userIds.isBlank()) {
+            _state.update { it.copy(isLoading = false, error = "Todos los campos requeridos deben ser completados") }
+            return
+        }
+
         val fields = mutableMapOf<String, RequestBody>().apply {
             put("name", state.value.name.toPlainRequestBody())
             put("justification", state.value.justification.toPlainRequestBody())
@@ -47,22 +59,38 @@ class CreateSafeZoneViewModel @Inject constructor(
             put("longitude", state.value.longitude.toPlainRequestBody())
             put("status_id", state.value.statusId.toPlainRequestBody())
             put("user_ids", state.value.userIds.toPlainRequestBody())
-            put("rating", state.value.rating.toPlainRequestBody())
-            if (state.value.description.isNotBlank())
+            put("rating", state.value.rating.ifBlank { "0" }.toPlainRequestBody())
+
+            // Agregar campos opcionales solo si tienen contenido
+            if (state.value.description.isNotBlank()) {
                 put("description", state.value.description.toPlainRequestBody())
-            if (state.value.category.isNotBlank())
+            }
+            if (state.value.category.isNotBlank()) {
                 put("category", state.value.category.toPlainRequestBody())
+            }
         }
 
-        val photoPart: MultipartBody.Part? = state.value.imageUri?.let {
-            uriToPart("photo_url", it, contentResolver)
+        Log.d("CreateSafeZoneViewModel", "Campos preparados: ${fields.keys}")
+
+        var photoPart: MultipartBody.Part? = null
+        state.value.imageUri?.let { uri ->
+            Log.d("CreateSafeZoneViewModel", "Procesando imagen: $uri")
+            photoPart = uriToPart("photo_url", uri, contentResolver)
+            if (photoPart != null) {
+                Log.d("CreateSafeZoneViewModel", "Imagen procesada correctamente")
+            } else {
+                Log.e("CreateSafeZoneViewModel", "Error al procesar imagen")
+            }
         }
 
         viewModelScope.launch {
             try {
+                Log.d("CreateSafeZoneViewModel", "Enviando petición al backend")
                 val result = createSafeZoneUseCase(fields, photoPart)
+                Log.d("CreateSafeZoneViewModel", "Respuesta exitosa: $result")
                 _state.update { it.copy(isLoading = false, success = true) }
             } catch (e: Exception) {
+                Log.e("CreateSafeZoneViewModel", "Error al crear zona segura", e)
                 _state.update { it.copy(isLoading = false, error = e.message ?: "Error desconocido") }
             }
         }
@@ -86,3 +114,4 @@ data class SafeZoneUiState(
     val success: Boolean = false,
     val error: String? = null
 )
+

@@ -17,7 +17,8 @@ interface SafeZoneApi {
     suspend fun getAllSafeZones(): Response<List<SafeZoneResponseDTO>>
 
     @GET("/safezones/{id}")
-    suspend fun getSafeZoneById(@Path("id") id : String): Response<SafeZoneResponseDTO>
+    suspend fun getSafeZoneById(@Path("id") id: String): Response<SafeZoneResponseDTO>
+
     @Multipart
     @POST("safezones")
     suspend fun createSafeZoneWithImage(

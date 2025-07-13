@@ -37,7 +37,10 @@ object AppModule {
     @Singleton
     fun provideRetrofit(client: OkHttpClient): Retrofit =
         Retrofit.Builder()
-            .baseUrl(BuildConfig.API_URL)
+            .baseUrl(
+                "https://cuidemonosaqp-backend.onrender.com"
+                //"http://192.168.41.117:3000/"
+            )
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
