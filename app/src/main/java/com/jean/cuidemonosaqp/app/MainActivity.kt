@@ -28,10 +28,33 @@ import com.jean.cuidemonosaqp.shared.preferences.SessionViewModel
 import com.jean.cuidemonosaqp.shared.theme.CuidemonosAQPTheme
 import dagger.hilt.android.AndroidEntryPoint
 
+
+import android.net.Uri
+import javax.inject.Inject
+import com.jean.cuidemonosaqp.modules.safeZone.test.runner.SafeZoneTestRunner
+import com.jean.cuidemonosaqp.shared.preferences.TokenManager
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var tokenManager: TokenManager
+    @Inject
+    lateinit var runner: SafeZoneTestRunner
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        /*// 🔐 GUARDAR TOKEN MANUALMENTE
+        val jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsImVtYWlsIjoiam9yZHlAZ21haWwuY29tIiwiZG5pIjoiNzI2NzQ2NzIiLCJpYXQiOjE3NTIwODI1MTEsImV4cCI6MTc1MjA4NjExMX0.qiYDKjK_ovvzveEVh6IFN5D8abuKZezCQk1GB60KB64" // token válido de prueba
+        tokenManager.saveAccessToken(jwt)
+
+        // 📦 VERIFICAR
+        Log.d("TOKEN", "Token guardado: ${tokenManager.getAccessToken()}")
+
+        // 🧪 PROBAR CREACIÓN DE ZONA (requiere token válido)
+        runner.createTestZone(contentResolver, null)*/
+
         enableEdgeToEdge()
         setContent {
             CuidemonosAQPTheme(dynamicColor = false) {

@@ -89,5 +89,4 @@ class AuthRepositoryImpl @Inject constructor(
             NetworkResult.Error(e.localizedMessage ?: "Ha ocurrido un error inesperado durante el registro.")
         }
     }
-
 }

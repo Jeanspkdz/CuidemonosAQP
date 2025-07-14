@@ -33,4 +33,5 @@ sealed class Routes {
         @Serializable
         data class Detail(val id: String): SafeZone()
     }
+
 }

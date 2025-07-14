@@ -36,7 +36,8 @@ android {
             buildConfigField("String", "API_URL", "\"https://cuidemonosaqp-backend.onrender.com\"")
         }
         debug {
-            buildConfigField("String", "API_URL", "\"http://10.0.2.2:3000\"")
+            //buildConfigField("String", "API_URL", "\"https://cuidemonosaqp-backend.onrender.com\"")
+            buildConfigField("String", "API_URL", "\"http://192.168.41.117:3000/\"")
         }
 
     }
@@ -110,11 +111,20 @@ dependencies {
     // Google Maps Compose widgets library
     implementation("com.google.maps.android:maps-compose-widgets:$mapsComposeVersion")
 
+    // Servicios de Google Play para ubicación
     implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
+
+    // Accompanist para permisos
     implementation("com.google.accompanist:accompanist-permissions:0.32.0")
+
 
     implementation ("androidx.compose.material:material-icons-extended")
 
     //DataStore
     implementation("androidx.datastore:datastore:1.1.7")
+
+    // Material Icons Extended
+    implementation("androidx.compose.material:material-icons-extended")
+
 }
