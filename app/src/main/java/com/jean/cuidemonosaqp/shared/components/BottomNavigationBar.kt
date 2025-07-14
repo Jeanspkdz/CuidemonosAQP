@@ -33,6 +33,7 @@ data class TopLevelRoute(
 fun BottomNavigationBar(
     navController: NavController,
     currentDestination: NavDestination?,
+    userId: String
 ) {
 
     val navBarItems = listOf(
@@ -49,7 +50,7 @@ fun BottomNavigationBar(
         TopLevelRoute(
             icon = Icons.Default.Person,
             label = "Profile",
-            route = Routes.Profile(id="1")//TODO Update id
+            route = Routes.Profile(id=userId)
         ),
     )
 

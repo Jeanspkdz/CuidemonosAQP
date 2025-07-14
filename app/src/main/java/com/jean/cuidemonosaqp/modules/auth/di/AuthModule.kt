@@ -3,6 +3,7 @@ package com.jean.cuidemonosaqp.modules.auth.di
 import com.jean.cuidemonosaqp.modules.auth.data.remote.AuthApi
 import com.jean.cuidemonosaqp.modules.auth.data.repository.AuthRepositoryImpl
 import com.jean.cuidemonosaqp.modules.auth.domain.repository.AuthRepository
+import com.jean.cuidemonosaqp.shared.preferences.SessionCache
 import com.jean.cuidemonosaqp.shared.preferences.TokenManager
 import dagger.Module
 import dagger.Provides
@@ -23,7 +24,7 @@ object AuthModule {
 
     @Provides
     @Singleton
-    fun provideAuthRepository(api: AuthApi, tokenManager: TokenManager): AuthRepository {
-        return AuthRepositoryImpl(api, tokenManager)
+    fun provideAuthRepository(api: AuthApi, sessionCache: SessionCache): AuthRepository {
+        return AuthRepositoryImpl(api, sessionCache)
     }
 }

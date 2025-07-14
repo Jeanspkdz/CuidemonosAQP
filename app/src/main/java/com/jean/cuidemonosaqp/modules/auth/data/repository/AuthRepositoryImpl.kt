@@ -5,6 +5,8 @@ import com.jean.cuidemonosaqp.modules.auth.data.model.*
 import com.jean.cuidemonosaqp.modules.auth.data.remote.AuthApi
 import com.jean.cuidemonosaqp.modules.auth.domain.repository.AuthRepository
 import com.jean.cuidemonosaqp.shared.network.NetworkResult
+import com.jean.cuidemonosaqp.shared.preferences.Session
+import com.jean.cuidemonosaqp.shared.preferences.SessionCache
 import com.jean.cuidemonosaqp.shared.preferences.TokenManager
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -12,7 +14,7 @@ import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
     private val authApi: AuthApi,
-    private val tokenManager: TokenManager
+    private val sessionCache: SessionCache,
 ) : AuthRepository {
 
     companion object {
@@ -24,8 +26,13 @@ class AuthRepositoryImpl @Inject constructor(
             val response = authApi.login(LoginRequest(emailOrDni, password))
             Log.d(TAG, "Response: $response")
             if (response.isSuccessful && response.body() != null) {
-                tokenManager.saveAccessToken(response.body()!!.accessToken)
-                tokenManager.saveUserId(response.body()!!.id)
+                val bodyResponse = response.body()!!
+                sessionCache.updateSession(
+                    Session(
+                        id = bodyResponse.id,
+                        token = bodyResponse.accessToken
+                    )
+                )
                 NetworkResult.Success(response.body()!!)
             } else {
                 val errorResponse =response.errorBody()?.string()

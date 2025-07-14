@@ -7,6 +7,7 @@ import com.jean.cuidemonosaqp.modules.profile.domain.usecase.GetReviewsForUserUs
 import com.jean.cuidemonosaqp.modules.profile.domain.usecase.GetUserInfoUseCase
 import com.jean.cuidemonosaqp.shared.network.NetworkResult
 import com.jean.cuidemonosaqp.modules.user.domain.model.User
+import com.jean.cuidemonosaqp.shared.preferences.SessionCache
 import com.jean.cuidemonosaqp.shared.preferences.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +23,7 @@ import javax.inject.Inject
 class ProfileViewModel @Inject constructor(
     val getUserInfoUseCase: GetUserInfoUseCase,
     val getUserReviewsUseCase: GetReviewsForUserUseCase,
-    private val tokenManager: TokenManager
+    private val sessionCache: SessionCache,
 ) :
     ViewModel() {
 
@@ -63,9 +64,9 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _isLoading.update { true }
+                Log.d(TAG, "SESSION ID: ${sessionCache.getUserId()}")
 
-                //TODO : Change for real ID
-                val userId = tokenManager.getUserId() ?: throw Exception("No UserId")
+                val userId = sessionCache.getUserId() ?: throw Exception("No UserId")
                 when (val response = getUserInfoUseCase(userId)) {
                     is NetworkResult.Error -> {
                         Log.d(TAG, "loadProfileData Error ${response.message}")

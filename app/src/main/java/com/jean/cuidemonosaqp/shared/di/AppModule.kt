@@ -1,9 +1,17 @@
 package com.jean.cuidemonosaqp.shared.di
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.core.DataStoreFactory
+import androidx.datastore.dataStoreFile
 import com.jean.cuidemonosaqp.BuildConfig
 import com.jean.cuidemonosaqp.shared.network.AuthInterceptor
+import com.jean.cuidemonosaqp.shared.preferences.DATA_STORE_FILE_NAME
+import com.jean.cuidemonosaqp.shared.preferences.Session
+import com.jean.cuidemonosaqp.shared.preferences.SessionCache
+import com.jean.cuidemonosaqp.shared.preferences.SessionCacheImp
 import com.jean.cuidemonosaqp.shared.preferences.TokenManager
+import com.jean.cuidemonosaqp.shared.preferences.UserPreferencesSerializer
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,6 +29,21 @@ object AppModule {
     @Provides
     @Singleton
     fun provideTokenManager(@ApplicationContext context: Context): TokenManager = TokenManager(context)
+
+    @Provides
+    @Singleton
+    fun provideUserPreferencesDataStore(@ApplicationContext appContext: Context): DataStore<Session>{
+        return DataStoreFactory.create(
+            serializer = UserPreferencesSerializer,
+            produceFile = {appContext.dataStoreFile(DATA_STORE_FILE_NAME)}
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun providesSessionCacheImp(dataStore: DataStore<Session>): SessionCache {
+        return SessionCacheImp(dataStore)
+    }
 
     @Provides
     @Singleton
