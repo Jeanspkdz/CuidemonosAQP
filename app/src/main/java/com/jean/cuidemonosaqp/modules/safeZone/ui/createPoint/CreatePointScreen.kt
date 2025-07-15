@@ -5,6 +5,9 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -22,6 +25,24 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.isGranted
 import android.Manifest
+
+
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.CardDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import com.google.accompanist.flowlayout.FlowRow
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -128,12 +149,53 @@ fun CreateSafeZoneScreen(viewModel: CreateSafeZoneViewModel = hiltViewModel()) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        OutlinedTextField(
-            value = state.userIds,
-            onValueChange = viewModel::onUserIdsChange,
-            label = { Text("User IDs (ej: 1,2,3)") },
-            modifier = Modifier.fillMaxWidth()
-        )
+
+
+        Box {
+            OutlinedTextField(
+                value = state.userSearchQuery,
+                onValueChange = viewModel::onUserSearchChange,
+                label = { Text("Invitar vigilantes") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                modifier = Modifier.fillMaxWidth()
+            )
+            DropdownMenu(
+                expanded = state.userSuggestions.isNotEmpty(),
+                onDismissRequest = { /* no cerrar al teclear */ },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surface)
+            ) {
+                state.userSuggestions.forEach { user ->
+                    DropdownMenuItem(
+                        text = { Text("${user.firstName} ${user.lastName}") },
+                        onClick = { viewModel.onUserSelected(user) }
+                    )
+                }
+            }
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        FlowRow(
+            mainAxisSpacing = 8.dp,
+            crossAxisSpacing = 8.dp,
+            modifier = Modifier.padding(vertical = 8.dp)
+        ) {
+            state.selectedUsers.forEach { user ->
+                AssistChip(
+                    onClick = { /* opcional: ver perfil */ },
+                    trailingIcon = {
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = "Quitar",
+                            modifier = Modifier.clickable { viewModel.onUserRemoved(user) }
+                        )
+                    },
+                    label = { Text(user.firstName) }
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 

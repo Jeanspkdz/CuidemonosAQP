@@ -14,14 +14,17 @@ fun User.toUI(): UserUI = UserUI(
     phone = phone,
     email = email,
     address = address,
-    profilePhotoUrl = profilePhotoUrl,
+    // Manejar nulos en URLs de foto de perfil
+    profilePhotoUrl = profilePhotoUrl.orEmpty(),
     memberSince = formatDate(createdAt)
 )
 
+@SuppressLint("NewApi")
 fun UserReview.toUI(): ReviewUI = ReviewUI(
     id = id.toString(),
     author = "${reviewer.firstName} ${reviewer.lastName}",
     stars = score,
     comment = comment,
-    date = createdAt.substring(0, 10)
+    // Evitar crash si createdAt es más corto
+    date = createdAt.takeIf { it.length >= 10 }?.substring(0, 10).orEmpty()
 )
