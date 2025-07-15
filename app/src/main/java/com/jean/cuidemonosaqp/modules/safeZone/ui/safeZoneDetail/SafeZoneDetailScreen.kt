@@ -62,7 +62,7 @@ fun SafeZoneDetailScreen(
 ) {
 
     if (isLoading) {
-        Box(contentAlignment = Alignment.Center) {
+        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
             CircularProgressIndicator()
         }
         return
@@ -90,7 +90,6 @@ fun SafeZoneDetailScreen(
             }
         }
 
-
         HorizontalDivider(Modifier.padding(vertical = 15.dp))
 
         Box(
@@ -98,9 +97,6 @@ fun SafeZoneDetailScreen(
                 .height(200.dp)
                 .fillMaxWidth()
         )
-
-        //PROFILES
-
 
         Spacer(Modifier.height(12.dp))
 

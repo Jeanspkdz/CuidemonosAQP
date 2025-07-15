@@ -1,12 +1,15 @@
 package com.jean.cuidemonosaqp.modules.profile.ui
 
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import com.jean.cuidemonosaqp.modules.profile.domain.usecase.GetReviewsForUserUseCase
 import com.jean.cuidemonosaqp.modules.profile.domain.usecase.GetUserInfoUseCase
 import com.jean.cuidemonosaqp.shared.network.NetworkResult
 import com.jean.cuidemonosaqp.modules.user.domain.model.User
+import com.jean.cuidemonosaqp.navigation.Routes
 import com.jean.cuidemonosaqp.shared.preferences.SessionCache
 import com.jean.cuidemonosaqp.shared.preferences.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,12 +27,15 @@ class ProfileViewModel @Inject constructor(
     val getUserInfoUseCase: GetUserInfoUseCase,
     val getUserReviewsUseCase: GetReviewsForUserUseCase,
     private val sessionCache: SessionCache,
+    private val savedStateHandle: SavedStateHandle,
 ) :
     ViewModel() {
 
     companion object {
         const val TAG = "ProfileViewModel"
     }
+
+    private lateinit var currentUserId : String
 
     private val _userState = MutableStateFlow<UserUI?>(null)
     val userState: StateFlow<UserUI?> = _userState.asStateFlow()
@@ -56,17 +62,25 @@ class ProfileViewModel @Inject constructor(
     val events: StateFlow<ProfileEvent?> = _events.asStateFlow()
 
     init {
+        getCurrentUserId()
         loadProfileData()
         loadReviews()
+    }
+
+    private fun getCurrentUserId(){
+        val profileRoute = savedStateHandle.toRoute<Routes.Profile>()
+        val id = profileRoute.id
+        currentUserId = id
     }
 
     private fun loadProfileData() {
         viewModelScope.launch {
             try {
-                _isLoading.update { true }
+                _isLoading.value = true
                 Log.d(TAG, "SESSION ID: ${sessionCache.getUserId()}")
 
-                val userId = sessionCache.getUserId() ?: throw Exception("No UserId")
+                val userId = currentUserId
+
                 when (val response = getUserInfoUseCase(userId)) {
                     is NetworkResult.Error -> {
                         Log.d(TAG, "loadProfileData Error ${response.message}")
@@ -89,7 +103,7 @@ class ProfileViewModel @Inject constructor(
                 Log.d(TAG, "ERROR :  ${e.message}")
                 _errorMessage.update { "Something went wrong." }
             } finally {
-                _isLoading.update { false }
+                _isLoading.value = false
             }
         }
     }
@@ -97,7 +111,7 @@ class ProfileViewModel @Inject constructor(
     private fun loadReviews() {
         viewModelScope.launch {
             try {
-                when (val response = getUserReviewsUseCase(1.toString())) {
+                when (val response = getUserReviewsUseCase(currentUserId)) {
                     is NetworkResult.Error -> {
                         Log.d(TAG, "loadProfileData Error ${response.message}")
                         _errorMessage.update { response.message }
