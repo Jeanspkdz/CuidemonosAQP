@@ -28,14 +28,15 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideTokenManager(@ApplicationContext context: Context): TokenManager = TokenManager(context)
+    fun provideTokenManager(@ApplicationContext context: Context): TokenManager =
+        TokenManager(context)
 
     @Provides
     @Singleton
-    fun provideUserPreferencesDataStore(@ApplicationContext appContext: Context): DataStore<Session>{
+    fun provideUserPreferencesDataStore(@ApplicationContext appContext: Context): DataStore<Session> {
         return DataStoreFactory.create(
             serializer = UserPreferencesSerializer,
-            produceFile = {appContext.dataStoreFile(DATA_STORE_FILE_NAME)}
+            produceFile = { appContext.dataStoreFile(DATA_STORE_FILE_NAME) }
         )
     }
 
@@ -47,7 +48,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideAuthInterceptor(tokenManager: TokenManager): AuthInterceptor = AuthInterceptor(tokenManager)
+    fun provideAuthInterceptor(sessionCache: SessionCache): AuthInterceptor =
+        AuthInterceptor(sessionCache)
 
     @Provides
     @Singleton
