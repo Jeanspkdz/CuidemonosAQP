@@ -27,8 +27,6 @@ import com.jean.cuidemonosaqp.shared.components.BottomNavigationBar
 import com.jean.cuidemonosaqp.shared.preferences.SessionViewModel
 import com.jean.cuidemonosaqp.shared.theme.CuidemonosAQPTheme
 import dagger.hilt.android.AndroidEntryPoint
-
-
 import android.net.Uri
 import javax.inject.Inject
 import com.jean.cuidemonosaqp.modules.safeZone.test.runner.SafeZoneTestRunner
@@ -45,15 +43,17 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        /*// 🔐 GUARDAR TOKEN MANUALMENTE
-        val jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsImVtYWlsIjoiam9yZHlAZ21haWwuY29tIiwiZG5pIjoiNzI2NzQ2NzIiLCJpYXQiOjE3NTIwODI1MTEsImV4cCI6MTc1MjA4NjExMX0.qiYDKjK_ovvzveEVh6IFN5D8abuKZezCQk1GB60KB64" // token válido de prueba
+        /*
+        // 🔐 GUARDAR TOKEN MANUALMENTE
+        val jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsImVtYWlsIjoiam9yZHlAZ21haWwuY29tIiwiZG5pIjoiNzI2NzQ2NzIiLCJpYXQiOjE3NTI1NTI2NzMsImV4cCI6MTc1MjU1NjI3M30.0_JVOPeOS3wN_s9HK8aAk0QugH4QCaXOck-mfwjuf9I" // token válido de prueba
         tokenManager.saveAccessToken(jwt)
 
         // 📦 VERIFICAR
         Log.d("TOKEN", "Token guardado: ${tokenManager.getAccessToken()}")
 
-        // 🧪 PROBAR CREACIÓN DE ZONA (requiere token válido)
-        runner.createTestZone(contentResolver, null)*/
+        // 🧪 PROBAR OBTENCION DE USUARIOS
+        //AQUI
+        */
 
         enableEdgeToEdge()
         setContent {

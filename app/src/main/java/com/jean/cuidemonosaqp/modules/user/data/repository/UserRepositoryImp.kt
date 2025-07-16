@@ -13,7 +13,7 @@ class UserRepositoryImp @Inject constructor(
     private val userApi: UserApi
 ) : UserRepository {
     companion object {
-        const val  TAG = "UserRepoImpl"
+        const val TAG = "UserRepoImpl"
     }
 
     override suspend fun getUserById(id: String): NetworkResult<User> {
@@ -37,6 +37,25 @@ class UserRepositoryImp @Inject constructor(
         } catch (e: Exception) {
             Log.d(TAG, "${e.message}")
             NetworkResult.Error("Algo salio Mal")
+        }
+    }
+
+    override suspend fun searchUsers(query: String): NetworkResult<List<User>> {
+        Log.d(TAG, "→ searchUsers(query=\"$query\")")
+        return try {
+            val resp = userApi.searchUsers(query)
+            val body = resp.body()
+            val err  = resp.errorBody()?.string()
+            Log.d(TAG, "← HTTP ${resp.code()} bodySize=${body?.size} err=$err")
+            if (resp.isSuccessful && body != null) {
+                val list = body.map { it.toDomain() }
+                NetworkResult.Success(list)
+            } else {
+                NetworkResult.Error("HTTP ${resp.code()}")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Exception en searchUsers", e)
+            NetworkResult.Error(e.message ?: "Error desconocido")
         }
     }
 }

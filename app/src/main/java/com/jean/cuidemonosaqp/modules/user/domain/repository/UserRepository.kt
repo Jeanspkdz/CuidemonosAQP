@@ -6,4 +6,5 @@ import com.jean.cuidemonosaqp.modules.user.domain.model.User
 interface UserRepository {
 
     suspend fun getUserById(id:String): NetworkResult<User>
+    suspend fun searchUsers(query: String): NetworkResult<List<User>>
 }

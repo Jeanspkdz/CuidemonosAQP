@@ -109,7 +109,7 @@ fun SafeZoneDetailScreen(
                             modifier = Modifier
                                 .size(40.dp)
                                 .zIndex(index.toFloat()), // el último queda encima
-                            profilePhotoUrl = user.profilePhotoUrl,
+                            profilePhotoUrl = user.profilePhotoUrl.orEmpty(),
                             onNavigateToUserProfile = {onNavigateToUserProfile(user.id.toString())}
                         )
                     }

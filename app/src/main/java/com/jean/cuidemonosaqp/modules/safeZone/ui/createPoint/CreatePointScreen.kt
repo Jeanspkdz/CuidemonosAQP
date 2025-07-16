@@ -1,38 +1,72 @@
 package com.jean.cuidemonosaqp.modules.safeZone.ui.createPoint
 
+import android.Manifest
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.ui.Alignment
-import com.google.android.gms.maps.model.LatLng
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.isGranted
-import android.Manifest
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.android.gms.maps.model.LatLng
+import com.jean.cuidemonosaqp.modules.user.domain.model.User
+
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun CreateSafeZoneScreen(viewModel: CreateSafeZoneViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsState()
+    val errorMsg = state.error
     val context = LocalContext.current
     val scrollState = rememberScrollState()
 
     var showLocationPicker by remember { mutableStateOf(false) }
-
-    // Permisos de ubicación
     val locationPermissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
 
     val imagePickerLauncher = rememberLauncherForActivityResult(GetContent()) { uri: Uri? ->
@@ -43,154 +77,153 @@ fun CreateSafeZoneScreen(viewModel: CreateSafeZoneViewModel = hiltViewModel()) {
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(scrollState)
-            .padding(16.dp)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        // Nombre
         OutlinedTextField(
             value = state.name,
             onValueChange = viewModel::onNameChange,
-            label = { Text("Nombre") },
-            modifier = Modifier.fillMaxWidth()
+            label = { Text("Nombre de la zona segura") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
-
+        // Justificación
         OutlinedTextField(
             value = state.justification,
             onValueChange = viewModel::onJustificationChange,
             label = { Text("Justificación") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            minLines = 2,
+            maxLines = 4
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Botón para seleccionar ubicación
-        OutlinedButton(
-            onClick = {
-                if (locationPermissionState.status.isGranted) {
-                    showLocationPicker = true
-                } else {
-                    locationPermissionState.launchPermissionRequest()
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
+        // Selección de ubicación
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
+            )
         ) {
-            Icon(
-                imageVector = Icons.Default.LocationOn,
-                contentDescription = "Seleccionar ubicación"
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                if (state.latitude.isNotBlank() && state.longitude.isNotBlank()) {
-                    "Ubicación: ${String.format("%.4f", state.latitude.toDoubleOrNull() ?: 0.0)}, ${String.format("%.4f", state.longitude.toDoubleOrNull() ?: 0.0)}"
-                } else {
-                    "Seleccionar Ubicación"
-                }
-            )
-        }
-
-        // Mostrar coordenadas si están disponibles
-        if (state.latitude.isNotBlank() && state.longitude.isNotBlank()) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                )
+            Column(
+                modifier = Modifier.padding(16.dp)
             ) {
-                Column(
-                    modifier = Modifier.padding(12.dp)
+                OutlinedButton(
+                    onClick = {
+                        if (locationPermissionState.status.isGranted) {
+                            showLocationPicker = true
+                        } else {
+                            locationPermissionState.launchPermissionRequest()
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
                 ) {
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = "Seleccionar ubicación"
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Coordenadas seleccionadas:",
-                        style = MaterialTheme.typography.labelMedium
+                        if (state.latitude.isNotBlank() && state.longitude.isNotBlank()) {
+                            "Ubicación seleccionada"
+                        } else {
+                            "Seleccionar Ubicación"
+                        }
+                    )
+                }
+
+                if (state.latitude.isNotBlank() && state.longitude.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Lat: ${String.format("%.6f", state.latitude.toDoubleOrNull() ?: 0.0)}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = "Latitud: ${state.latitude}",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Text(
-                        text = "Longitud: ${state.longitude}",
-                        style = MaterialTheme.typography.bodyMedium
+                        text = "Lng: ${String.format("%.6f", state.longitude.toDoubleOrNull() ?: 0.0)}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        // Sección de Vigilantes
+        VigilantesSelectorSection(
+            state = state,
+            onSearchChange = viewModel::onUserSearchChange,
+            onUserSelected = viewModel::onUserSelected,
+            onUserRemoved = viewModel::onUserRemoved,
+            onClearSearch = viewModel::clearSearch
+        )
 
+        // Status ID
         OutlinedTextField(
             value = state.statusId,
             onValueChange = viewModel::onStatusIdChange,
             label = { Text("ID de Estado") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
         )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = state.userIds,
-            onValueChange = viewModel::onUserIdsChange,
-            label = { Text("User IDs (ej: 1,2,3)") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = state.rating,
-            onValueChange = viewModel::onRatingChange,
-            label = { Text("Calificación") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
 
         // Campos opcionales
         OutlinedTextField(
             value = state.category,
             onValueChange = viewModel::onCategoryChange,
-            label = { Text("Categoría") },
-            modifier = Modifier.fillMaxWidth()
+            label = { Text("Categoría (opcional)") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
         )
-
-        Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
             value = state.description,
             onValueChange = viewModel::onDescriptionChange,
-            label = { Text("Descripción") },
-            modifier = Modifier.fillMaxWidth()
+            label = { Text("Descripción (opcional)") },
+            modifier = Modifier.fillMaxWidth(),
+            minLines = 2,
+            maxLines = 4
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = { imagePickerLauncher.launch("image/*") },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Seleccionar Imagen")
-        }
-
-        state.imageUri?.let {
-            Spacer(modifier = Modifier.height(8.dp))
-            Image(
-                painter = rememberAsyncImagePainter(it),
-                contentDescription = "Preview de imagen",
-                modifier = Modifier
-                    .height(200.dp)
-                    .fillMaxWidth()
+        // Selección de imagen
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
             )
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Button(
+                    onClick = { imagePickerLauncher.launch("image/*") },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Seleccionar Imagen")
+                }
+
+                state.imageUri?.let { uri ->
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Image(
+                        painter = rememberAsyncImagePainter(uri),
+                        contentDescription = "Preview de imagen",
+                        modifier = Modifier
+                            .height(150.dp)
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+            }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
+        // Botón de crear
         Button(
             onClick = {
                 viewModel.submit(context.contentResolver)
             },
             modifier = Modifier.fillMaxWidth(),
-            enabled = !state.isLoading
+            enabled = viewModel.canCreateZone()
         ) {
             if (state.isLoading) {
                 CircularProgressIndicator(
@@ -202,34 +235,38 @@ fun CreateSafeZoneScreen(viewModel: CreateSafeZoneViewModel = hiltViewModel()) {
             Text("Crear Zona Segura")
         }
 
+        // Mensajes de estado
         if (state.success) {
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
+                modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 )
             ) {
-                Text(
-                    text = "Zona creada exitosamente ✅",
+                Row(
                     modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "✅",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Zona creada exitosamente",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
             }
         }
 
-        if (state.error != null) {
+        errorMsg?.let { msg ->
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.errorContainer
-                )
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
             ) {
                 Text(
-                    text = "Error: ${state.error}",
+                    text = msg,
                     modifier = Modifier.padding(16.dp),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onErrorContainer
@@ -238,7 +275,7 @@ fun CreateSafeZoneScreen(viewModel: CreateSafeZoneViewModel = hiltViewModel()) {
         }
     }
 
-    // Mostrar el selector de ubicación
+    // Selector de ubicación
     if (showLocationPicker) {
         LocationPickerDialog(
             onLocationSelected = { latLng ->
@@ -252,8 +289,272 @@ fun CreateSafeZoneScreen(viewModel: CreateSafeZoneViewModel = hiltViewModel()) {
                     state.longitude.toDoubleOrNull() ?: -71.537451
                 )
             } else {
-                LatLng(-16.409047, -71.537451) // Arequipa por defecto
+                LatLng(-16.409047, -71.537451)
             }
         )
+    }
+}
+
+@Composable
+private fun VigilantesSelectorSection(
+    state: SafeZoneUiState,
+    onSearchChange: (String) -> Unit,
+    onUserSelected: (User) -> Unit,
+    onUserRemoved: (User) -> Unit,
+    onClearSearch: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // Título y contador
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Vigilantes requeridos",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Text(
+                    text = "Se necesitan mínimo 3 vigilantes para activar este punto seguro",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            // Indicadores de progreso
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                repeat(3) { index ->
+                    val isSelected = index < state.selectedUsers.size
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(CircleShape)
+                            .background(
+                                if (isSelected) MaterialTheme.colorScheme.primary
+                                else MaterialTheme.colorScheme.surfaceVariant
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = (index + 1).toString(),
+                            color = if (isSelected) MaterialTheme.colorScheme.onPrimary
+                            else MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+
+            // Buscador
+            OutlinedTextField(
+                value = state.userSearchQuery,
+                onValueChange = onSearchChange,
+                label = { Text("Invitar vigilantes por nombre o correo") },
+                leadingIcon = {
+                    Icon(
+                        Icons.Default.Search,
+                        contentDescription = "Buscar",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                trailingIcon = {
+                    if (state.userSearchQuery.isNotEmpty()) {
+                        IconButton(onClick = onClearSearch) {
+                            Icon(
+                                Icons.Default.Close,
+                                contentDescription = "Limpiar búsqueda"
+                            )
+                        }
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                enabled = state.selectedUsers.size < 3
+            )
+
+            // Sugerencias de usuarios
+            if (state.userSuggestions.isNotEmpty()) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Column {
+                        state.userSuggestions.forEach { user ->
+                            UserSuggestionItem(
+                                user = user,
+                                onClick = { onUserSelected(user) }
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Usuarios seleccionados
+            if (state.selectedUsers.isNotEmpty()) {
+                Text(
+                    text = "Vigilantes seleccionados:",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Medium
+                )
+
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    state.selectedUsers.forEach { user ->
+                        SelectedUserItem(
+                            user = user,
+                            onRemove = { onUserRemoved(user) }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun UserSuggestionItem(
+    user: User,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Avatar placeholder o imagen de perfil
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primaryContainer),
+            contentAlignment = Alignment.Center
+        ) {
+            if (user.profilePhotoUrl != null) {
+                Image(
+                    painter = rememberAsyncImagePainter(user.profilePhotoUrl),
+                    contentDescription = "Foto de perfil",
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Text(
+                    text = "${user.firstName.firstOrNull()}${user.lastName.firstOrNull()}",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                text = user.fullName,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium
+            )
+            Text(
+                text = user.email,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun SelectedUserItem(
+    user: User,
+    onRemove: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        )
+    ) {
+        Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Avatar
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary),
+                contentAlignment = Alignment.Center
+            ) {
+                if (user.profilePhotoUrl != null) {
+                    Image(
+                        painter = rememberAsyncImagePainter(user.profilePhotoUrl),
+                        contentDescription = "Foto de perfil",
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Text(
+                        text = "${user.firstName.firstOrNull()}${user.lastName.firstOrNull()}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = user.fullName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium
+                )
+                Text(
+                    text = user.email,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            IconButton(
+                onClick = onRemove,
+                modifier = Modifier.size(24.dp)
+            ) {
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = "Quitar vigilante",
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+        }
     }
 }
