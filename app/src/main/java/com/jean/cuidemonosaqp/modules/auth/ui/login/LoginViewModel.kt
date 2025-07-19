@@ -44,18 +44,8 @@ class LoginViewModel @Inject constructor(
             _loginState.value = LoginState(isLoading = true)
 
             try {
-                // Usando LoginUseCase (método recomendado)
                 when (val result = loginUseCase(emailOrDni.value, password.value)) {
                     is NetworkResult.Success -> {
-
-                        val jwt    = result.data.accessToken
-                        val userId = result.data.id.toString()
-
-                        // Guardamos en DataStore
-                        sessionCache.updateToken(jwt)
-                        sessionCache.updateUserId(userId)
-                        Log.d("LoginVM", "Token guardado: $jwt, UserId: $userId")
-
                         Log.d("LOGIN_SUCCESS", "Login exitoso")
                         Log.d("LOGIN_DATA", "Datos: ${result.data}")
 

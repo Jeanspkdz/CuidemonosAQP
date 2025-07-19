@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 interface SessionCache {
     suspend fun updateSession(session: Session)
     suspend fun getToken(): String?
+    fun getTokenSync(): String?
     suspend fun getUserId(): String?
     fun observeUserId(): Flow<String?>
     fun observeToken(): Flow<String?>

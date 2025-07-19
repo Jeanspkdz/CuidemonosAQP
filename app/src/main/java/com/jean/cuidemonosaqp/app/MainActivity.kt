@@ -69,7 +69,6 @@ fun MainScreen() {
     val navController = rememberNavController()
     val currentNavBackStackEntry = navController.currentBackStackEntryAsState().value
     val currentDestination = currentNavBackStackEntry?.destination
-
     val currentHierarchy :  Sequence<NavDestination>? = currentDestination?.hierarchy
     val showBottomBar = currentHierarchy?.none() {
         it.hasRoute(Routes.Auth.Login::class) || it.hasRoute(Routes.Auth.Register::class)
@@ -77,10 +76,6 @@ fun MainScreen() {
 
     val sessionViewModel = hiltViewModel<SessionViewModel>()
     val userId by sessionViewModel.userId.collectAsStateWithLifecycle(null)
-
-    LaunchedEffect(userId) {
-        Log.d("TESTING!!!!!", "Launched_MainScreen: USER_ID ${userId} ")
-    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),

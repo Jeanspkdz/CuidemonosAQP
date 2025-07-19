@@ -1,9 +1,11 @@
 package com.jean.cuidemonosaqp.shared.preferences
 
 import androidx.datastore.core.DataStore
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 class SessionCacheImp @Inject constructor(
@@ -15,7 +17,6 @@ class SessionCacheImp @Inject constructor(
             session
         }
     }
-
 
     override fun observeUserId(): Flow<String?> {
         return dataStore.data.map {
@@ -31,6 +32,12 @@ class SessionCacheImp @Inject constructor(
 
     override suspend fun getToken(): String? {
         return dataStore.data.first().token
+    }
+
+    override fun getTokenSync(): String? {
+        return runBlocking(Dispatchers.IO) {
+            dataStore.data.first().token
+        }
     }
 
     override suspend fun getUserId(): String? {

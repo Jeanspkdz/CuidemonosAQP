@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.dataStoreFile
+import com.jean.cuidemonosaqp.BuildConfig
 import com.jean.cuidemonosaqp.shared.network.AuthInterceptor
 import com.jean.cuidemonosaqp.shared.preferences.DATA_STORE_FILE_NAME
 import com.jean.cuidemonosaqp.shared.preferences.Session
@@ -60,7 +61,7 @@ object AppModule {
     @Provides @Singleton
     fun provideRetrofit(client: OkHttpClient): Retrofit =
         Retrofit.Builder()
-            .baseUrl("http://10.7.120.220:3000/")  // desde emulador
+            .baseUrl(BuildConfig.API_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
