@@ -5,19 +5,19 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.jean.cuidemonosaqp.modules.profile.domain.usecase.GetReviewsForUserUseCase
+import com.jean.cuidemonosaqp.modules.userreviews.domain.usecase.GetReviewsForUserUseCase
 import com.jean.cuidemonosaqp.modules.profile.domain.usecase.GetUserInfoUseCase
-import com.jean.cuidemonosaqp.shared.network.NetworkResult
-import com.jean.cuidemonosaqp.modules.user.domain.model.User
+import com.jean.cuidemonosaqp.modules.userreviews.data.dto.UserReviewRequestDTO
+import com.jean.cuidemonosaqp.modules.userreviews.domain.usecase.CreateUserReviewUseCase
 import com.jean.cuidemonosaqp.navigation.Routes
-import com.jean.cuidemonosaqp.shared.preferences.SessionCache
-import com.jean.cuidemonosaqp.shared.preferences.TokenManager
+import com.jean.cuidemonosaqp.shared.network.NetworkResult
+import com.jean.cuidemonosaqp.shared.preferences.SessionRepository
+import com.jean.cuidemonosaqp.shared.utils.SnackBarController
+import com.jean.cuidemonosaqp.shared.utils.SnackBarEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,7 +26,8 @@ import javax.inject.Inject
 class ProfileViewModel @Inject constructor(
     val getUserInfoUseCase: GetUserInfoUseCase,
     val getUserReviewsUseCase: GetReviewsForUserUseCase,
-    private val sessionCache: SessionCache,
+    val createUserReviewUseCase: CreateUserReviewUseCase,
+    private val sessionRepository: SessionRepository,
     private val savedStateHandle: SavedStateHandle,
 ) :
     ViewModel() {
@@ -43,6 +44,9 @@ class ProfileViewModel @Inject constructor(
     private val _reviews = MutableStateFlow<List<ReviewUI>>(emptyList())
     val reviews: StateFlow<List<ReviewUI>> = _reviews.asStateFlow()
 
+    private val _isOwnProfile = MutableStateFlow(false)
+    val isOwnProfile = _isOwnProfile.asStateFlow()
+
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
@@ -58,13 +62,17 @@ class ProfileViewModel @Inject constructor(
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage = _errorMessage.asStateFlow()
 
-    private val _events = MutableStateFlow<ProfileEvent?>(null)
-    val events: StateFlow<ProfileEvent?> = _events.asStateFlow()
-
     init {
         getCurrentUserId()
+        checkOwnProfile()
         loadProfileData()
         loadReviews()
+    }
+
+    private fun checkOwnProfile(){
+       viewModelScope.launch {
+           _isOwnProfile.value = currentUserId == sessionRepository.getUserId()
+       }
     }
 
     private fun getCurrentUserId(){
@@ -77,7 +85,7 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _isLoading.value = true
-                Log.d(TAG, "SESSION ID: ${sessionCache.getUserId()}")
+                Log.d(TAG, "SESSION ID: ${sessionRepository.getUserId()}")
 
                 val userId = currentUserId
 
@@ -148,10 +156,45 @@ class ProfileViewModel @Inject constructor(
     }
     fun onCreateUserReview(){
         //Call UseCase
+        Log.d(TAG, "onCreateUserReview: ${rating.value}")
+        Log.d(TAG, "onCreateUserReview: ${userReviewComment.value}")
+
+
+        _isLoading.value = true
+        viewModelScope.launch {
+            when(val result = createUserReviewUseCase(
+                reviewedId = currentUserId.toInt(),
+                reviewerId = sessionRepository.getUserId()!!.toInt(),
+                comment = userReviewComment.value,
+                score = rating.value
+            )){
+                is NetworkResult.Error -> {
+                    Log.d(TAG, "onCreateUserReview: ${result.message}")
+                    SnackBarController.sendEvent(
+                        SnackBarEvent(
+                            message = result.message,
+                        )
+                    )
+                }
+                is NetworkResult.Success -> {
+                    hideDialog()
+                    //Reset Fields
+                    _userReviewComment.value = ""
+                    _rating.value = 0
+                    //Show SnackBar
+                    SnackBarController.sendEvent(
+                        SnackBarEvent(
+                            message = "Review Creada Exitosamente",
+                        )
+                    )
+                    //Update Current review list
+                    _reviews.value += result.data.toUI()
+                }
+                NetworkResult.Loading -> {}
+            }
+
+        }
+        _isLoading.value = false
     }
-
-}
-
-sealed class ProfileEvent {
 
 }

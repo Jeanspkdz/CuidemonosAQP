@@ -50,7 +50,7 @@ fun BottomNavigationBar(
         TopLevelRoute(
             icon = Icons.Default.Person,
             label = "Profile",
-            route = Routes.Profile(id=userId) // ? It must be a fixed id....
+            route = Routes.Profile(id=userId)
         ),
     )
 

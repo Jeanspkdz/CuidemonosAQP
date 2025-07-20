@@ -21,6 +21,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
@@ -33,6 +34,7 @@ fun AddReviewDialog(
     onChangeUserReviewComment: (comment: String) -> Unit,
     onDismiss: () -> Unit,
     onCreateUserReview: () -> Unit,
+    isLoading: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     AlertDialog(
@@ -49,12 +51,15 @@ fun AddReviewDialog(
 
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.alpha(if (isLoading) 0.5f else 1f) // <-- opacidad
                 ) {
                     repeat(5) { index ->
                         IconButton(
                             onClick = { onSelectRating(index + 1) },
-                            modifier = Modifier.size(32.dp)
+                            modifier = Modifier.size(32.dp),
+                            enabled = !isLoading
+
                         ) {
                             Icon(
                                 imageVector = if (index < rating) Icons.Default.Star else Icons.Outlined.Star,
@@ -81,14 +86,16 @@ fun AddReviewDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(120.dp),
-                    maxLines = 4
+                    maxLines = 4,
+                    enabled = !isLoading
                 )
             }
         },
         onDismissRequest = { onDismiss() },
         confirmButton = {
             TextButton(
-                onClick = { onCreateUserReview()}
+                onClick = { onCreateUserReview()},
+                enabled = !isLoading
             ) {
                 Text("Enviar")
             }

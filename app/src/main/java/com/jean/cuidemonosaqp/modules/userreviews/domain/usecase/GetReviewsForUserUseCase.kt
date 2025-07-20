@@ -1,4 +1,4 @@
-package com.jean.cuidemonosaqp.modules.profile.domain.usecase
+package com.jean.cuidemonosaqp.modules.userreviews.domain.usecase
 
 import com.jean.cuidemonosaqp.modules.userreviews.domain.repository.UserReviewRepository
 import javax.inject.Inject

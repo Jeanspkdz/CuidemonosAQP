@@ -2,7 +2,7 @@ package com.jean.cuidemonosaqp.modules.userreviews.data.dto
 
 import com.google.gson.annotations.SerializedName
 
-data class UserReviewResponse(
+data class UserReviewResponseDTO(
     val id: Int,
     val comment: String,
 
@@ -26,10 +26,10 @@ data class UserReviewResponse(
     @SerializedName("updatedAt")
     val updatedAt: String,
 
-    val reviewer: Reviewer
+    val reviewer: ReviewerDTO
 )
 
-data class Reviewer(
+data class ReviewerDTO(
     val id: Int,
 
     @SerializedName("first_name")

@@ -8,9 +8,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
-class SessionCacheImp @Inject constructor(
+class SessionRepositoryImp @Inject constructor(
     private val dataStore: DataStore<Session>
-): SessionCache {
+): SessionRepository {
 
     override suspend fun updateSession(session: Session) {
         dataStore.updateData {

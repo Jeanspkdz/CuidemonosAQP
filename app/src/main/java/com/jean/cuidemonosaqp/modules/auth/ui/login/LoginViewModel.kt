@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jean.cuidemonosaqp.modules.auth.domain.usecase.LoginUseCase
 import com.jean.cuidemonosaqp.shared.network.NetworkResult
-import com.jean.cuidemonosaqp.shared.preferences.SessionCache
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,7 +16,6 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
-    private val sessionCache: SessionCache,
 ) : ViewModel() {
 
     private val _emailOrDni = MutableStateFlow("")
