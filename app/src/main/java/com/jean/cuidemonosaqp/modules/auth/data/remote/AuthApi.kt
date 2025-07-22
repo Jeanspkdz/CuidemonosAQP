@@ -14,17 +14,19 @@ interface AuthApi {
     suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
 
     @Multipart
-    @POST("auth/register")
+    @POST("users")
     suspend fun register(
         @Part("dni") dni: RequestBody,
         @Part("first_name") firstName: RequestBody,
         @Part("last_name") lastName: RequestBody,
-        @Part("dni_extension") dniExtension: RequestBody?, // opcional
+        @Part("dni_extension") dniExtension: RequestBody?,
         @Part("password") password: RequestBody,
         @Part("phone") phone: RequestBody,
         @Part("email") email: RequestBody,
         @Part("address") address: RequestBody,
         @Part("reputation_status_id") reputationStatusId: RequestBody,
+        @Part("address_latitude") addressLatitude: RequestBody,
+        @Part("address_longitude") addressLongitude: RequestBody,
         @Part dniPhoto: MultipartBody.Part?,
         @Part profilePhoto: MultipartBody.Part?
     ): Response<RegisterResponse>

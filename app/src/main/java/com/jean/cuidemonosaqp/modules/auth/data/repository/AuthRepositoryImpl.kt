@@ -62,10 +62,23 @@ class AuthRepositoryImpl @Inject constructor(
         email: RequestBody,
         address: RequestBody,
         reputationStatusId: RequestBody,
+        addressLatitude: RequestBody,
+        addressLongitude: RequestBody,
         dniPhoto: MultipartBody.Part?,
         profilePhoto: MultipartBody.Part?
     ): NetworkResult<RegisterResponse> {
         return try {
+            Log.d(TAG, "=== REGISTER REQUEST DEBUG ===")
+            Log.d(TAG, "AddressLatitude RequestBody content: ${addressLatitude.contentType()}")
+            Log.d(TAG, "AddressLongitude RequestBody content: ${addressLongitude.contentType()}")
+            // Para ver el contenido real (esto es un hack pero útil para debug):
+            val buffer = okio.Buffer()
+            addressLatitude.writeTo(buffer)
+            Log.d(TAG, "AddressLatitude actual content: ${buffer.readUtf8()}")
+
+            val buffer2 = okio.Buffer()
+            addressLongitude.writeTo(buffer2)
+            Log.d(TAG, "AddressLongitude actual content: ${buffer2.readUtf8()}")
             val response = authApi.register(
                 dni,
                 firstName,
@@ -76,17 +89,20 @@ class AuthRepositoryImpl @Inject constructor(
                 email,
                 address,
                 reputationStatusId,
+                addressLatitude,
+                addressLongitude,
                 dniPhoto,
                 profilePhoto
             )
+            Log.d(TAG, "Register response code: ${response.code()}")
+            Log.d(TAG, "Register response body: ${response.body()}")
             if (response.isSuccessful && response.body() != null) {
                 NetworkResult.Success(response.body()!!)
             } else {
                 NetworkResult.Error(response.errorBody()?.string() ?: "Register failed")
             }
         } catch (e: Exception) {
-            e.printStackTrace()
-            NetworkResult.Error(e.localizedMessage ?: "Ha ocurrido un error inesperado durante el registro.")
+            NetworkResult.Error(e.localizedMessage ?: "Ha ocurrido un error inesperado")
         }
     }
 }

@@ -18,7 +18,10 @@ interface AuthRepository {
         email: RequestBody,
         address: RequestBody,
         reputationStatusId: RequestBody,
+        addressLatitude: RequestBody,
+        addressLongitude: RequestBody,
         dniPhoto: MultipartBody.Part?,
         profilePhoto: MultipartBody.Part?
     ): NetworkResult<RegisterResponse>
+
 }

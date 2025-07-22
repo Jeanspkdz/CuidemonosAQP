@@ -63,6 +63,13 @@ class RegisterViewModel @Inject constructor(
     private val _reputationStatusId = MutableStateFlow("1")
     val reputationStatusId = _reputationStatusId.asStateFlow()
 
+    // NUEVO: Estados para la ubicación
+    private val _addressLatitude = MutableStateFlow<Double?>(null)
+    val addressLatitude = _addressLatitude.asStateFlow()
+
+    private val _addressLongitude = MutableStateFlow<Double?>(null)
+    val addressLongitude = _addressLongitude.asStateFlow()
+
     // Estados para las imágenes
     private val _profilePhotoUri = MutableStateFlow<Uri?>(null)
     val profilePhotoUri = _profilePhotoUri.asStateFlow()
@@ -74,7 +81,7 @@ class RegisterViewModel @Inject constructor(
     private val _registerState = MutableStateFlow(RegisterState())
     val registerState = _registerState.asStateFlow()
 
-    // NUEVO: Estado para validación de contraseñas
+    // Estado para validación de contraseñas
     val passwordsMatch = combine(_password, _confirmPassword) { password, confirmPassword ->
         if (confirmPassword.isEmpty()) true // No mostrar error si confirmPassword está vacío
         else password == confirmPassword
@@ -84,6 +91,14 @@ class RegisterViewModel @Inject constructor(
         initialValue = true
     )
 
+    // NUEVO: Estado combinado para verificar si la ubicación fue seleccionada
+    val locationSelected = combine(_addressLatitude, _addressLongitude) { lat, lng ->
+        lat != null && lng != null
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = false
+    )
 
     // Métodos para actualizar cada campo - mismo patrón que LoginViewModel
     fun onDniChanged(dni: String) {
@@ -107,7 +122,7 @@ class RegisterViewModel @Inject constructor(
     }
 
     fun onConfirmPasswordChanged(confirmPassword: String) {
-        _confirmPassword.update {confirmPassword}
+        _confirmPassword.update { confirmPassword }
     }
 
     fun onPhoneChanged(phone: String) {
@@ -126,6 +141,19 @@ class RegisterViewModel @Inject constructor(
         _reputationStatusId.update { reputationStatusId }
     }
 
+    // NUEVO: Métodos para manejar la ubicación
+    fun onLocationSelected(latitude: Double, longitude: Double) {
+        _addressLatitude.update { latitude }
+        _addressLongitude.update { longitude }
+        Log.d("REGISTER_LOCATION", "Ubicación seleccionada: $latitude, $longitude")
+    }
+
+    fun clearLocation() {
+        _addressLatitude.update { null }
+        _addressLongitude.update { null }
+        Log.d("REGISTER_LOCATION", "Ubicación limpiada")
+    }
+
     // Métodos para manejar las imágenes
     fun onProfilePhotoSelected(uri: Uri?) {
         _profilePhotoUri.update { uri }
@@ -135,7 +163,7 @@ class RegisterViewModel @Inject constructor(
         _dniPhotoUri.update { uri }
     }
 
-    // Méthodo principal de registro - refactorizado para usar los estados internos
+    // Método principal de registro - refactorizado para incluir ubicación
     fun onRegisterClicked() {
         if (!isFormValid()) {
             _registerState.value = RegisterState(error = "Por favor complete todos los campos obligatorios.")
@@ -144,6 +172,11 @@ class RegisterViewModel @Inject constructor(
 
         if (!passwordsMatch.value) {
             _registerState.value = RegisterState(error = "Las contraseñas no coinciden.")
+            return
+        }
+
+        if (!locationSelected.value) {
+            _registerState.value = RegisterState(error = "Por favor seleccione su ubicación en el mapa.")
             return
         }
 
@@ -163,6 +196,20 @@ class RegisterViewModel @Inject constructor(
                 val repStatusBody = _reputationStatusId.value.toRequestBody("text/plain".toMediaTypeOrNull())
                 val dniExtBody = _dniExtension.value.takeIf { it.isNotBlank() }
                     ?.toRequestBody("text/plain".toMediaTypeOrNull())
+
+                val latitudeBody = _addressLatitude.value?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
+                val longitudeBody = _addressLongitude.value?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
+
+                // Y agrega validación antes de la llamada al API:
+                if (latitudeBody == null || longitudeBody == null) {
+                    _registerState.value = RegisterState(error = "Error con las coordenadas de ubicación")
+                    return@launch
+                }
+                Log.d("REGISTER_LOCATION_DEBUG", "Latitude value: ${_addressLatitude.value}")
+                Log.d("REGISTER_LOCATION_DEBUG", "Longitude value: ${_addressLongitude.value}")
+                Log.d("REGISTER_LOCATION_DEBUG", "Latitude RequestBody: $latitudeBody")
+                Log.d("REGISTER_LOCATION_DEBUG", "Longitude RequestBody: $longitudeBody")
+
                 val contentResolver = context.contentResolver
 
                 // Preparar las imágenes si están disponibles
@@ -173,8 +220,8 @@ class RegisterViewModel @Inject constructor(
                     uriToPart("profile_photo", uri, contentResolver)
                 }
 
-                // Llamar al use case con NetworkResult pattern - mismo que LoginViewModel
-                when (val result:  NetworkResult<RegisterResponse> = registerUseCase(
+                // Llamar al use case con NetworkResult pattern - actualizado con coordenadas
+                when (val result: NetworkResult<RegisterResponse> = registerUseCase(
                     dniBody,
                     firstNameBody,
                     lastNameBody,
@@ -184,6 +231,8 @@ class RegisterViewModel @Inject constructor(
                     emailBody,
                     addressBody,
                     repStatusBody,
+                    latitudeBody,
+                    longitudeBody,
                     dniPart,
                     profilePart
                 )) {
@@ -206,7 +255,6 @@ class RegisterViewModel @Inject constructor(
                 Log.e("REGISTER_EXCEPTION", "Excepción durante registro: ${e.message}", e)
                 _registerState.value = RegisterState(error = "Error inesperado: ${e.message}")
             }
-
         }
     }
 
@@ -227,12 +275,14 @@ class RegisterViewModel @Inject constructor(
         _email.value = ""
         _address.value = ""
         _reputationStatusId.value = "1"
+        _addressLatitude.value = null // NUEVO
+        _addressLongitude.value = null // NUEVO
         _profilePhotoUri.value = null
         _dniPhotoUri.value = null
         _registerState.value = RegisterState()
     }
 
-    // Método de validación (opcional, para usar en la UI)
+    // Método de validación (actualizado para incluir ubicación)
     fun isFormValid(): Boolean {
         return _dni.value.isNotBlank() &&
                 _firstName.value.isNotBlank() &&
@@ -242,7 +292,9 @@ class RegisterViewModel @Inject constructor(
                 _confirmPassword.value.isNotBlank() &&
                 _phone.value.isNotBlank() &&
                 _address.value.isNotBlank() &&
-                _password.value == _confirmPassword.value
+                _password.value == _confirmPassword.value &&
+                _addressLatitude.value != null &&
+                _addressLongitude.value != null
     }
 }
 

@@ -1,4 +1,5 @@
 package com.jean.cuidemonosaqp.modules.auth.data.model
+import com.google.gson.annotations.SerializedName
 
 //LOGIN
 data class LoginResponse(
@@ -7,19 +8,28 @@ data class LoginResponse(
     val id:String
 )
 
-// REGISTER
 data class RegisterResponse(
     val id: Int,
     val dni: String,
-    val first_name: String,
-    val last_name: String,
+    @SerializedName("first_name")
+    val firstName: String,
+    @SerializedName("last_name")
+    val lastName: String,
     val email: String,
     val phone: String,
     val address: String,
-    val reputation_status_id: Int,
-    val dni_extension: String?,
-    val dni_photo_url: String?,
-    val profile_photo_url: String?,
+    @SerializedName("address_latitude")
+    val addressLatitude: Double,
+    @SerializedName("address_longitude")
+    val addressLongitude: Double,
+    @SerializedName("reputation_status_id")
+    val reputationStatusId: Int,
+    @SerializedName("dni_extension")
+    val dniExtension: String?,
+    @SerializedName("dni_photo_url")
+    val dniPhotoUrl: String?,
+    @SerializedName("profile_photo_url")
+    val profilePhotoUrl: String?,
     val createdAt: String,
     val updatedAt: String,
     val token_refresh: String?
