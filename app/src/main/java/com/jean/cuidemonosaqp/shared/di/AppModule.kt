@@ -4,11 +4,12 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.dataStoreFile
+import com.jean.cuidemonosaqp.BuildConfig
 import com.jean.cuidemonosaqp.shared.network.AuthInterceptor
 import com.jean.cuidemonosaqp.shared.preferences.DATA_STORE_FILE_NAME
 import com.jean.cuidemonosaqp.shared.preferences.Session
-import com.jean.cuidemonosaqp.shared.preferences.SessionCache
-import com.jean.cuidemonosaqp.shared.preferences.SessionCacheImp
+import com.jean.cuidemonosaqp.shared.preferences.SessionRepository
+import com.jean.cuidemonosaqp.shared.preferences.SessionRepositoryImp
 import com.jean.cuidemonosaqp.shared.preferences.UserPreferencesSerializer
 import dagger.Module
 import dagger.Provides
@@ -37,12 +38,12 @@ object AppModule {
     }
 
     @Provides @Singleton
-    fun providesSessionCacheImp(dataStore: DataStore<Session>): SessionCache =
-        SessionCacheImp(dataStore)
+    fun provideSessionRepoImp(dataStore: DataStore<Session>): SessionRepository =
+        SessionRepositoryImp(dataStore)
 
     @Provides @Singleton
-    fun provideAuthInterceptor(sessionCache: SessionCache): AuthInterceptor =
-        AuthInterceptor(sessionCache)
+    fun provideAuthInterceptor(sessionRepository: SessionRepository): AuthInterceptor =
+        AuthInterceptor(sessionRepository)
 
     @Provides @Singleton
     fun provideOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient {
@@ -60,7 +61,7 @@ object AppModule {
     @Provides @Singleton
     fun provideRetrofit(client: OkHttpClient): Retrofit =
         Retrofit.Builder()
-            .baseUrl("http://192.168.228.117:3000/")  // desde emulador
+            .baseUrl(BuildConfig.API_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

@@ -1,20 +1,21 @@
 package com.jean.cuidemonosaqp.modules.auth.data.repository
 
 import android.util.Log
-import com.jean.cuidemonosaqp.modules.auth.data.model.*
+import com.jean.cuidemonosaqp.modules.auth.data.model.LoginRequest
+import com.jean.cuidemonosaqp.modules.auth.data.model.LoginResponse
+import com.jean.cuidemonosaqp.modules.auth.data.model.RegisterResponse
 import com.jean.cuidemonosaqp.modules.auth.data.remote.AuthApi
 import com.jean.cuidemonosaqp.modules.auth.domain.repository.AuthRepository
 import com.jean.cuidemonosaqp.shared.network.NetworkResult
 import com.jean.cuidemonosaqp.shared.preferences.Session
-import com.jean.cuidemonosaqp.shared.preferences.SessionCache
-import com.jean.cuidemonosaqp.shared.preferences.TokenManager
+import com.jean.cuidemonosaqp.shared.preferences.SessionRepository
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
     private val authApi: AuthApi,
-    private val sessionCache: SessionCache,
+    private val sessionCache: SessionRepository,
 ) : AuthRepository {
 
     companion object {

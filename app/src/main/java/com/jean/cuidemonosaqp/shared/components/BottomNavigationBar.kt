@@ -44,8 +44,8 @@ fun BottomNavigationBar(
         ),
         TopLevelRoute(
             icon = Icons.Default.Star,
-            label = "Mis Puntos",
-            route = Routes.SafeZone.Create // TODO : Update Route
+            label = "Puntos",
+            route = Routes.SafeZone.List
         ),
         TopLevelRoute(
             icon = Icons.Default.Person,

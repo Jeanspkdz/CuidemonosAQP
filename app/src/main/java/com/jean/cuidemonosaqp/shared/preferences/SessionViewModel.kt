@@ -8,7 +8,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SessionViewModel @Inject constructor(
-    private val sessionCache: SessionCache
+    private val sessionCache: SessionRepository
 ) : ViewModel() {
 
     val userId: Flow<String?> = sessionCache.observeUserId()

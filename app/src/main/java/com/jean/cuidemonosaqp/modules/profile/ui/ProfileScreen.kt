@@ -1,5 +1,6 @@
 package com.jean.cuidemonosaqp.modules.profile.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,10 +16,12 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -44,7 +47,8 @@ fun ProfileScreenHost(
     val showAddReviewDialog by viewModel.showAddReviewDialog.collectAsStateWithLifecycle()
     val rating by viewModel.rating.collectAsStateWithLifecycle()
     val userReviewComment by viewModel.userReviewComment.collectAsStateWithLifecycle()
-
+    val isOwnProfile by viewModel.isOwnProfile.collectAsStateWithLifecycle()
+    val errorMessage by viewModel.errorMessage.collectAsStateWithLifecycle()
 
     ProfileScreen(
         user = user,
@@ -57,7 +61,9 @@ fun ProfileScreenHost(
         onHideDialog = viewModel::hideDialog,
         showAddReviewDialog = showAddReviewDialog,
         onCreateUserReview = viewModel::onCreateUserReview,
+        isOwnProfile = isOwnProfile,
         isLoading = isLoading,
+        errorMessage = errorMessage,
         modifier = modifier,
     )
 }
@@ -65,6 +71,7 @@ fun ProfileScreenHost(
 @Composable
 fun ProfileScreen(
     user: UserUI?,
+    isOwnProfile: Boolean,
     isLoading: Boolean,
     reviews: List<ReviewUI>,
     onShowDialog: () -> Unit,
@@ -75,10 +82,12 @@ fun ProfileScreen(
     userReviewComment: String,
     onChangeUserReviewComment: (comment: String) -> Unit,
     onCreateUserReview: () -> Unit,
+    errorMessage: String?,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
 
-    if (isLoading) {
+    if (isLoading && user == null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator()
         }
@@ -127,23 +136,26 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(20.dp))
 
         // Botón Calificar Usuario
-        Button(
-            onClick = { onShowDialog() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer
-            ),
-            shape = RoundedCornerShape(8.dp)
-        ) {
-            Text(
-                "Calificar Usuario",
-                color = Color.White,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium
-            )
+        if(!isOwnProfile){
+            Button(
+                onClick = { onShowDialog() },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                ),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text(
+                    "Calificar Usuario",
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
         }
+
 
         if(showAddReviewDialog){
             AddReviewDialog(
@@ -152,7 +164,8 @@ fun ProfileScreen(
                 onSelectRating = onSelectRating,
                 userReviewComment = userReviewComment,
                 onChangeUserReviewComment = onChangeUserReviewComment ,
-                onCreateUserReview = onCreateUserReview
+                onCreateUserReview = onCreateUserReview,
+                isLoading = isLoading
             )
         }
 
@@ -169,6 +182,13 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         UserReviewList(reviews = reviews)
+    }
+
+    LaunchedEffect(errorMessage) {
+        if(!errorMessage.isNullOrEmpty()){
+            //Toast
+            Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+        }
     }
 }
 
@@ -229,8 +249,10 @@ private fun ProfileScreenPreview() {
             onChangeUserReviewComment = {},
             onShowDialog = {},
             onHideDialog = {},
+            onCreateUserReview = {},
             showAddReviewDialog = false,
-            onCreateUserReview = {}
+            isOwnProfile = true,
+            errorMessage = null,
         )
     }
 }
