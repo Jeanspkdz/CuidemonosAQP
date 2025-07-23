@@ -32,7 +32,10 @@ class MapViewModel @Inject constructor(
         viewModelScope.launch {
             when (val result = getAllPointsUseCase()) {
                 is NetworkResult.Success -> {
-                    _safeZones.value = result.data
+                    val safeZonesData = result.data
+                    _safeZones.value = safeZonesData.filter {
+                        it.isActive
+                    }
                     Log.d("MapViewModel", "SUCCESS: ${result.data}")
                 }
                 is NetworkResult.Error -> {
