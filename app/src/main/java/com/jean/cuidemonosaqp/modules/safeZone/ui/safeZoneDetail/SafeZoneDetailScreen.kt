@@ -167,9 +167,14 @@ private fun SafeZoneDetailScreenPreview() {
                         phone = "987654321",
                         email = "juan.perez@example.com",
                         address = "Av. Los Héroes 123",
+                        addressLatitude = -16.39889,
+                        addressLongitude = -71.5365,
                         dniPhotoUrl = "https://via.placeholder.com/100x140.png?text=DNI+1",
                         profilePhotoUrl = "https://via.placeholder.com/100.png?text=JP",
+                        reputationScore = 5,
+                        reputationStatusId = 1,
                         isActive = true,
+                        refreshToken = null, // No incluir tokens reales en previews
                         createdAt = "2025-06-01T10:00:00Z",
                         updatedAt = "2025-07-01T15:30:00Z"
                     ),
@@ -182,9 +187,14 @@ private fun SafeZoneDetailScreenPreview() {
                         phone = "912345678",
                         email = "lucia.ramirez@example.com",
                         address = "Jr. Las Flores 456",
+                        addressLatitude = -16.40123,
+                        addressLongitude = -71.5287,
                         dniPhotoUrl = "https://via.placeholder.com/100x140.png?text=DNI+2",
                         profilePhotoUrl = "https://via.placeholder.com/100.png?text=LR",
+                        reputationScore = 4,
+                        reputationStatusId = 1,
                         isActive = true,
+                        refreshToken = null, // No incluir tokens reales en previews
                         createdAt = "2025-06-10T09:15:00Z",
                         updatedAt = "2025-07-05T11:45:00Z"
                     ),
@@ -197,9 +207,14 @@ private fun SafeZoneDetailScreenPreview() {
                         phone = "998877665",
                         email = "pedro.lopez@example.com",
                         address = "Calle Falsa 789",
+                        addressLatitude = -16.39654,
+                        addressLongitude = -71.5412,
                         dniPhotoUrl = "https://via.placeholder.com/100x140.png?text=DNI+3",
                         profilePhotoUrl = "https://via.placeholder.com/100.png?text=PL",
+                        reputationScore = 3,
+                        reputationStatusId = 2,
                         isActive = false,
+                        refreshToken = null, // No incluir tokens reales en previews
                         createdAt = "2025-06-15T14:20:00Z",
                         updatedAt = "2025-07-08T08:00:00Z"
                     )

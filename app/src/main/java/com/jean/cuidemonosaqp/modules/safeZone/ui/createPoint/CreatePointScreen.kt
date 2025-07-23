@@ -109,41 +109,128 @@ fun CreateSafeZoneScreen(viewModel: CreateSafeZoneViewModel = hiltViewModel()) {
             Column(
                 modifier = Modifier.padding(16.dp)
             ) {
-                OutlinedButton(
-                    onClick = {
-                        if (locationPermissionState.status.isGranted) {
-                            showLocationPicker = true
-                        } else {
-                            locationPermissionState.launchPermissionRequest()
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.LocationOn,
-                        contentDescription = "Seleccionar ubicación"
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        if (state.latitude.isNotBlank() && state.longitude.isNotBlank()) {
-                            "Ubicación seleccionada"
-                        } else {
-                            "Seleccionar Ubicación"
-                        }
-                    )
+                // Indicador de carga de ubicación del usuario
+                if (state.isLoadingUserLocation) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(16.dp),
+                            strokeWidth = 2.dp
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Obteniendo tu ubicación...",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                } else {
+                    OutlinedButton(
+                        onClick = {
+                            if (locationPermissionState.status.isGranted) {
+                                if (state.currentUserLocation != null) {
+                                    showLocationPicker = true
+                                } else {
+                                    // Mostrar error si no se pudo obtener la ubicación del usuario
+                                    viewModel.onLatitudeChange("")
+                                    viewModel.onLongitudeChange("")
+                                }
+                            } else {
+                                locationPermissionState.launchPermissionRequest()
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !state.isLoadingUserLocation && state.currentUserLocation != null
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.LocationOn,
+                            contentDescription = "Seleccionar ubicación"
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            if (state.latitude.isNotBlank() && state.longitude.isNotBlank()) {
+                                "Ubicación seleccionada (${
+                                    if (state.currentUserLocation != null) {
+                                        val selectedLocation = LatLng(
+                                            state.latitude.toDoubleOrNull() ?: 0.0,
+                                            state.longitude.toDoubleOrNull() ?: 0.0
+                                        )
+                                        val distance = viewModel.calculateDistance(state.currentUserLocation!!, selectedLocation)
+                                        "${distance.toInt()}m"
+                                    } else "Error"
+                                })"
+                            } else {
+                                "Seleccionar Ubicación (máx. 100m)"
+                            }
+                        )
+                    }
                 }
 
                 if (state.latitude.isNotBlank() && state.longitude.isNotBlank()) {
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Lat: ${String.format("%.6f", state.latitude.toDoubleOrNull() ?: 0.0)}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+
+                    // Validación visual de ubicación
+                    val selectedLocation = LatLng(
+                        state.latitude.toDoubleOrNull() ?: 0.0,
+                        state.longitude.toDoubleOrNull() ?: 0.0
                     )
+                    val isWithinRadius = state.currentUserLocation?.let { userLoc ->
+                        viewModel.isLocationWithinRadius(selectedLocation)
+                    } ?: false
+
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (isWithinRadius)
+                                MaterialTheme.colorScheme.primaryContainer
+                            else
+                                MaterialTheme.colorScheme.errorContainer
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(12.dp)
+                        ) {
+                            Text(
+                                text = if (isWithinRadius)
+                                    "✅ Ubicación válida"
+                                else
+                                    "⚠️ Ubicación fuera del área permitida",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = if (isWithinRadius)
+                                    MaterialTheme.colorScheme.onPrimaryContainer
+                                else
+                                    MaterialTheme.colorScheme.onErrorContainer,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Text(
+                                text = "Lat: ${String.format("%.6f", state.latitude.toDoubleOrNull() ?: 0.0)}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = if (isWithinRadius)
+                                    MaterialTheme.colorScheme.onPrimaryContainer
+                                else
+                                    MaterialTheme.colorScheme.onErrorContainer
+                            )
+                            Text(
+                                text = "Lng: ${String.format("%.6f", state.longitude.toDoubleOrNull() ?: 0.0)}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = if (isWithinRadius)
+                                    MaterialTheme.colorScheme.onPrimaryContainer
+                                else
+                                    MaterialTheme.colorScheme.onErrorContainer
+                            )
+                        }
+                    }
+                }
+
+                // Mostrar error si no se pudo cargar la ubicación del usuario
+                if (!state.isLoadingUserLocation && state.currentUserLocation == null) {
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Lng: ${String.format("%.6f", state.longitude.toDoubleOrNull() ?: 0.0)}",
+                        text = "⚠️ No se pudo obtener tu ubicación. Necesitas estar ubicado para crear zonas seguras.",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.error
                     )
                 }
             }
@@ -289,8 +376,10 @@ fun CreateSafeZoneScreen(viewModel: CreateSafeZoneViewModel = hiltViewModel()) {
                     state.longitude.toDoubleOrNull() ?: -71.537451
                 )
             } else {
-                LatLng(-16.409047, -71.537451)
-            }
+                state.currentUserLocation ?: LatLng(-16.409047, -71.537451)
+            },
+            userLocation = state.currentUserLocation,
+            maxDistanceMeters = 100.0
         )
     }
 }
