@@ -18,6 +18,8 @@ class RegisterUseCase @Inject constructor(
         email: RequestBody,
         address: RequestBody,
         reputationStatusId: RequestBody,
+        addressLatitude: RequestBody,
+        addressLongitude: RequestBody,
         dniPhoto: MultipartBody.Part?,
         profilePhoto: MultipartBody.Part?
     ) = repository.register(
@@ -30,7 +32,10 @@ class RegisterUseCase @Inject constructor(
         email,
         address,
         reputationStatusId,
+        addressLatitude,
+        addressLongitude,
         dniPhoto,
         profilePhoto
     )
 }
+

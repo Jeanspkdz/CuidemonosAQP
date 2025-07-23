@@ -28,6 +28,8 @@ import com.jean.cuidemonosaqp.modules.notification.ui.NotificationsViewModel
 import com.jean.cuidemonosaqp.modules.profile.ui.ProfileScreenHost
 import com.jean.cuidemonosaqp.modules.profile.ui.ProfileViewModel
 import com.jean.cuidemonosaqp.modules.safeZone.ui.createPoint.CreateSafeZoneScreen
+import com.jean.cuidemonosaqp.modules.safeZone.ui.list.SafeZoneListScreenHost
+import com.jean.cuidemonosaqp.modules.safeZone.ui.list.SafeZoneListViewModel
 import com.jean.cuidemonosaqp.modules.safeZone.ui.safeZoneDetail.SafeZoneDetailScreenHost
 import com.jean.cuidemonosaqp.modules.safeZone.ui.safeZoneDetail.SafeZoneDetailViewModel
 import com.jean.cuidemonosaqp.shared.components.Splash
@@ -123,6 +125,15 @@ fun NavGraph(
         }
         composable<Routes.SafeZone.Create>() {
             CreateSafeZoneScreen()
+        }
+        composable<Routes.SafeZone.List>() {
+            val viewModel = hiltViewModel<SafeZoneListViewModel>()
+            SafeZoneListScreenHost(
+                viewModel = viewModel,
+                onNavigateToSafeZoneDetail = { safeZoneId ->
+                    navController.navigate(Routes.SafeZone.Detail(id = safeZoneId))
+                }
+            )
         }
         composable<Routes.SafeZone.Detail> {
             val viewModel = hiltViewModel<SafeZoneDetailViewModel>()

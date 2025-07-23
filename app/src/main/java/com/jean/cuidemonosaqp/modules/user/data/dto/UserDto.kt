@@ -11,9 +11,14 @@ data class UserResponseDto(
     val phone: String,
     val email: String,
     val address: String,
+    @SerializedName("address_latitude") val addressLatitude: Double?,
+    @SerializedName("address_longitude") val addressLongitude: Double?,
     @SerializedName("dni_photo_url") val dniPhotoUrl: String?,
     @SerializedName("profile_photo_url") val profilePhotoUrl: String?,
+    @SerializedName("reputation_score") val reputationScore: Int?,
+    @SerializedName("reputation_status_id") val reputationStatusId: Int?,
     @SerializedName("is_active") val isActive: Boolean,
+    @SerializedName("refresh_token") val refreshToken: String?,
     @SerializedName("createdAt") val createdAt: String,
     @SerializedName("updatedAt") val updatedAt: String
 )

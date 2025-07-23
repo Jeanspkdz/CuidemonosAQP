@@ -8,9 +8,12 @@ import androidx.lifecycle.viewModelScope
 import com.jean.cuidemonosaqp.modules.safeZone.domain.usecase.CreateSafeZoneUseCase
 import com.jean.cuidemonosaqp.modules.user.domain.model.User
 import com.jean.cuidemonosaqp.modules.user.domain.usecase.SearchUsersUseCase
+import com.jean.cuidemonosaqp.modules.profile.domain.usecase.GetUserInfoUseCase
 import com.jean.cuidemonosaqp.shared.network.NetworkResult
 import com.jean.cuidemonosaqp.shared.utils.toPlainRequestBody
 import com.jean.cuidemonosaqp.shared.utils.uriToPart
+import com.jean.cuidemonosaqp.shared.preferences.SessionRepository
+import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,17 +32,21 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
+import kotlin.math.pow
 
 @HiltViewModel
 class CreateSafeZoneViewModel @Inject constructor(
     private val createSafeZoneUseCase: CreateSafeZoneUseCase,
-    private val searchUsersUseCase: SearchUsersUseCase
+    private val searchUsersUseCase: SearchUsersUseCase,
+    private val getUserInfoUseCase: GetUserInfoUseCase,
+    private val sessionRepository: SessionRepository
 ) : ViewModel() {
 
     companion object {
         private const val TAG = "CreateSafeZoneVM"
         private const val MAX_SELECTED_USERS = 3
         private const val MAX_SUGGESTIONS = 5
+        private const val MAX_DISTANCE_METERS = 100.0
     }
 
     private val _state = MutableStateFlow(SafeZoneUiState())
@@ -92,6 +99,65 @@ class CreateSafeZoneViewModel @Inject constructor(
                 _state.update { it.copy(userSuggestions = list) }
             }
         }
+
+        // Cargar información del usuario actual
+        loadCurrentUserLocation()
+    }
+
+    private fun loadCurrentUserLocation() {
+        viewModelScope.launch {
+            try {
+                _state.update { it.copy(isLoadingUserLocation = true) }
+
+                val currentUserId = sessionRepository.getUserId()
+                if (currentUserId != null) {
+                    when (val response = getUserInfoUseCase(currentUserId)) {
+                        is NetworkResult.Success -> {
+                            val user = response.data
+                            val userLocation = LatLng(
+                                user.addressLatitude ?: -16.409047, // Arequipa por defecto
+                                user.addressLongitude ?: -71.537451
+                            )
+                            _state.update {
+                                it.copy(
+                                    currentUserLocation = userLocation,
+                                    isLoadingUserLocation = false
+                                )
+                            }
+                            Log.d(TAG, "User location loaded: ${userLocation.latitude}, ${userLocation.longitude}")
+                        }
+                        is NetworkResult.Error -> {
+                            Log.e(TAG, "Error loading user location: ${response.message}")
+                            _state.update {
+                                it.copy(
+                                    isLoadingUserLocation = false,
+                                    error = "No se pudo obtener tu ubicación: ${response.message}"
+                                )
+                            }
+                        }
+                        is NetworkResult.Loading -> {
+                            // Mantener estado de carga
+                        }
+                    }
+                } else {
+                    Log.e(TAG, "No user ID found in session")
+                    _state.update {
+                        it.copy(
+                            isLoadingUserLocation = false,
+                            error = "No se encontró información de sesión"
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Exception loading user location", e)
+                _state.update {
+                    it.copy(
+                        isLoadingUserLocation = false,
+                        error = "Error al cargar tu ubicación: ${e.message}"
+                    )
+                }
+            }
+        }
     }
 
     fun onUserSearchChange(query: String) {
@@ -140,7 +206,31 @@ class CreateSafeZoneViewModel @Inject constructor(
                 state.longitude.isNotBlank() &&
                 state.statusId.isNotBlank() &&
                 state.selectedUsers.size >= MAX_SELECTED_USERS &&
-                !state.isLoading
+                !state.isLoading &&
+                !state.isLoadingUserLocation &&
+                state.currentUserLocation != null
+    }
+
+    // Función para verificar si una ubicación está dentro del radio permitido
+    fun isLocationWithinRadius(selectedLocation: LatLng): Boolean {
+        val userLocation = _state.value.currentUserLocation ?: return false
+        return calculateDistance(userLocation, selectedLocation) <= MAX_DISTANCE_METERS
+    }
+
+    // Calcular distancia entre dos puntos en metros
+    fun calculateDistance(location1: LatLng, location2: LatLng): Double {
+        val earthRadius = 6371000.0 // Radio de la Tierra en metros
+
+        val lat1Rad = Math.toRadians(location1.latitude)
+        val lat2Rad = Math.toRadians(location2.latitude)
+        val deltaLatRad = Math.toRadians(location2.latitude - location1.latitude)
+        val deltaLngRad = Math.toRadians(location2.longitude - location1.longitude)
+
+        val a = kotlin.math.sin(deltaLatRad / 2).pow(2) +
+                kotlin.math.cos(lat1Rad) * kotlin.math.cos(lat2Rad) * kotlin.math.sin(deltaLngRad / 2).pow(2)
+        val c = 2 * kotlin.math.atan2(kotlin.math.sqrt(a), kotlin.math.sqrt(1 - a))
+
+        return earthRadius * c
     }
 
     // Resto de funciones onChange...
@@ -161,6 +251,20 @@ class CreateSafeZoneViewModel @Inject constructor(
                 it.copy(error = "Debe completar todos los campos requeridos y seleccionar exactamente 3 vigilantes")
             }
             return
+        }
+
+        // Validar que la ubicación esté dentro del radio permitido
+        if (state.value.latitude.isNotBlank() && state.value.longitude.isNotBlank()) {
+            val selectedLocation = LatLng(
+                state.value.latitude.toDoubleOrNull() ?: 0.0,
+                state.value.longitude.toDoubleOrNull() ?: 0.0
+            )
+            if (!isLocationWithinRadius(selectedLocation)) {
+                _state.update {
+                    it.copy(error = "La ubicación seleccionada está fuera del área permitida (${MAX_DISTANCE_METERS.toInt()}m)")
+                }
+                return
+            }
         }
 
         _state.update { it.copy(isLoading = true, error = null, success = false) }
@@ -229,5 +333,8 @@ data class SafeZoneUiState(
     val imageUri: Uri? = null,
     val isLoading: Boolean = false,
     val success: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    // Nuevos campos para ubicación del usuario
+    val currentUserLocation: LatLng? = null,
+    val isLoadingUserLocation: Boolean = false
 )
