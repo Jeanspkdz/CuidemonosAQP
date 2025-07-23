@@ -14,7 +14,7 @@ fun SafeZoneResponseDTO.toListItem(currentUserId: String): SafeZoneListItem {
         name = name,
         photoUrl = photoUrl,
         rating = calculatedRating,
-        status = status.description,
+        status = status?.description ?: "Estado desconocido",
         isUserZone = isUserZone
     )
 }

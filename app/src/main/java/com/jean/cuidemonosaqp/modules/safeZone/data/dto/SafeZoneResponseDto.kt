@@ -28,7 +28,7 @@ data class SafeZoneResponseDTO(
     val rating: Float?,
     val createdAt: String,
 
-    val status: StatusResponseDTO,
+    val status: StatusResponseDTO?,
     val users: List<UserResponseDto>
 )
 

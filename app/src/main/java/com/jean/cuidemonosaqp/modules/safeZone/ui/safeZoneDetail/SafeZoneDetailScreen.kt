@@ -86,7 +86,7 @@ fun SafeZoneDetailScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(text = safeZone.name, style = MaterialTheme.typography.headlineMedium)
-                Text(text = safeZone.status.description)
+                Text(text = safeZone.status?.description ?: "Estado desconocido")
             }
         }
 

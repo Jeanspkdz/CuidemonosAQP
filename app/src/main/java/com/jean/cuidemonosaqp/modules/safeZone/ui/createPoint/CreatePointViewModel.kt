@@ -15,23 +15,11 @@ import com.jean.cuidemonosaqp.shared.utils.uriToPart
 import com.jean.cuidemonosaqp.shared.preferences.SessionRepository
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import javax.inject.Inject
-import kotlinx.coroutines.flow.SharingStarted
 import kotlin.math.pow
 
 @HiltViewModel
@@ -47,6 +35,7 @@ class CreateSafeZoneViewModel @Inject constructor(
         private const val MAX_SELECTED_USERS = 3
         private const val MAX_SUGGESTIONS = 5
         private const val MAX_DISTANCE_METERS = 100.0
+        private val DEFAULT_LOCATION = LatLng(-16.409047, -71.537451) // Arequipa
     }
 
     private val _state = MutableStateFlow(SafeZoneUiState())
@@ -54,69 +43,49 @@ class CreateSafeZoneViewModel @Inject constructor(
 
     private val _searchQuery = MutableStateFlow("")
 
-    // Flow para búsqueda de usuarios
+    // Flow optimizado para búsqueda de usuarios
     private val searchResults: StateFlow<List<User>> = _searchQuery
         .debounce(300)
         .distinctUntilChanged()
         .filter { it.length >= 2 }
-        .onEach { q ->
-            Log.d(TAG, "Searching users for query: \"$q\"")
-        }
-        .flatMapLatest { q ->
+        .flatMapLatest { query ->
             flow {
-                when (val res = searchUsersUseCase(q)) {
+                when (val result = searchUsersUseCase(query)) {
                     is NetworkResult.Success -> {
-                        Log.d(TAG, "Got ${res.data.size} users for \"$q\"")
-                        // Filtrar usuarios ya seleccionados y limitar a 5
-                        val filteredUsers = res.data
-                            .filterNot { user ->
-                                _state.value.selectedUsers.any { selected -> selected.id == user.id }
-                            }
+                        val filteredUsers = result.data
+                            .filterNot { user -> _state.value.selectedUsers.any { it.id == user.id } }
                             .take(MAX_SUGGESTIONS)
                         emit(filteredUsers)
                     }
-                    is NetworkResult.Error -> {
-                        Log.d(TAG, "Search failed for \"$q\": ${res.message}")
-                        emit(emptyList())
-                    }
-                    is NetworkResult.Loading -> {
-                        Log.d(TAG, "Loading search for \"$q\"")
-                        emit(emptyList())
-                    }
+                    else -> emit(emptyList())
                 }
-            }
-        }
-        .catch { e ->
-            Log.e(TAG, "Error in searchResults flow", e)
-            emit(emptyList())
+            }.catch { emit(emptyList()) }
         }
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     init {
+        // Observar resultados de búsqueda
         viewModelScope.launch {
-            searchResults.collect { list ->
-                Log.d(TAG, "Collected suggestions: ${list.size} users")
-                _state.update { it.copy(userSuggestions = list) }
+            searchResults.collect { users ->
+                _state.update { it.copy(userSuggestions = users) }
             }
         }
-
-        // Cargar información del usuario actual
         loadCurrentUserLocation()
     }
 
     private fun loadCurrentUserLocation() {
         viewModelScope.launch {
-            try {
-                _state.update { it.copy(isLoadingUserLocation = true) }
+            _state.update { it.copy(isLoadingUserLocation = true) }
 
-                val currentUserId = sessionRepository.getUserId()
-                if (currentUserId != null) {
-                    when (val response = getUserInfoUseCase(currentUserId)) {
+            try {
+                val userId = sessionRepository.getUserId()
+                if (userId != null) {
+                    when (val response = getUserInfoUseCase(userId)) {
                         is NetworkResult.Success -> {
                             val user = response.data
                             val userLocation = LatLng(
-                                user.addressLatitude ?: -16.409047, // Arequipa por defecto
-                                user.addressLongitude ?: -71.537451
+                                user.addressLatitude ?: DEFAULT_LOCATION.latitude,
+                                user.addressLongitude ?: DEFAULT_LOCATION.longitude
                             )
                             _state.update {
                                 it.copy(
@@ -124,10 +93,8 @@ class CreateSafeZoneViewModel @Inject constructor(
                                     isLoadingUserLocation = false
                                 )
                             }
-                            Log.d(TAG, "User location loaded: ${userLocation.latitude}, ${userLocation.longitude}")
                         }
                         is NetworkResult.Error -> {
-                            Log.e(TAG, "Error loading user location: ${response.message}")
                             _state.update {
                                 it.copy(
                                     isLoadingUserLocation = false,
@@ -135,12 +102,9 @@ class CreateSafeZoneViewModel @Inject constructor(
                                 )
                             }
                         }
-                        is NetworkResult.Loading -> {
-                            // Mantener estado de carga
-                        }
+                        else -> { /* Loading state handled above */ }
                     }
                 } else {
-                    Log.e(TAG, "No user ID found in session")
                     _state.update {
                         it.copy(
                             isLoadingUserLocation = false,
@@ -149,7 +113,6 @@ class CreateSafeZoneViewModel @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Exception loading user location", e)
                 _state.update {
                     it.copy(
                         isLoadingUserLocation = false,
@@ -160,6 +123,7 @@ class CreateSafeZoneViewModel @Inject constructor(
         }
     }
 
+    // User management functions
     fun onUserSearchChange(query: String) {
         _searchQuery.value = query
         _state.update { it.copy(userSearchQuery = query) }
@@ -167,9 +131,7 @@ class CreateSafeZoneViewModel @Inject constructor(
 
     fun onUserSelected(user: User) {
         val currentSelected = _state.value.selectedUsers
-        if (currentSelected.size < MAX_SELECTED_USERS &&
-            !currentSelected.any { it.id == user.id }) {
-
+        if (currentSelected.size < MAX_SELECTED_USERS && !currentSelected.any { it.id == user.id }) {
             _state.update {
                 it.copy(
                     selectedUsers = it.selectedUsers + user,
@@ -178,15 +140,11 @@ class CreateSafeZoneViewModel @Inject constructor(
                 )
             }
             _searchQuery.value = ""
-            Log.d(TAG, "User selected: ${user.fullName}. Total selected: ${currentSelected.size + 1}")
         }
     }
 
     fun onUserRemoved(user: User) {
-        _state.update {
-            it.copy(selectedUsers = it.selectedUsers.filterNot { u -> u.id == user.id })
-        }
-        Log.d(TAG, "User removed: ${user.fullName}")
+        _state.update { it.copy(selectedUsers = it.selectedUsers.filterNot { u -> u.id == user.id }) }
     }
 
     fun clearSearch() {
@@ -194,33 +152,14 @@ class CreateSafeZoneViewModel @Inject constructor(
         _state.update { it.copy(userSearchQuery = "", userSuggestions = emptyList()) }
     }
 
-    private fun buildUserIds(): String =
-        state.value.selectedUsers.joinToString(",") { it.id.toString() }
-
-    // Validación para habilitar el botón de crear
-    fun canCreateZone(): Boolean {
-        val state = _state.value
-        return state.name.isNotBlank() &&
-                state.justification.isNotBlank() &&
-                state.latitude.isNotBlank() &&
-                state.longitude.isNotBlank() &&
-                state.statusId.isNotBlank() &&
-                state.selectedUsers.size >= MAX_SELECTED_USERS &&
-                !state.isLoading &&
-                !state.isLoadingUserLocation &&
-                state.currentUserLocation != null
-    }
-
-    // Función para verificar si una ubicación está dentro del radio permitido
+    // Location validation
     fun isLocationWithinRadius(selectedLocation: LatLng): Boolean {
         val userLocation = _state.value.currentUserLocation ?: return false
         return calculateDistance(userLocation, selectedLocation) <= MAX_DISTANCE_METERS
     }
 
-    // Calcular distancia entre dos puntos en metros
     fun calculateDistance(location1: LatLng, location2: LatLng): Double {
-        val earthRadius = 6371000.0 // Radio de la Tierra en metros
-
+        val earthRadius = 6371000.0
         val lat1Rad = Math.toRadians(location1.latitude)
         val lat2Rad = Math.toRadians(location2.latitude)
         val deltaLatRad = Math.toRadians(location2.latitude - location1.latitude)
@@ -233,19 +172,50 @@ class CreateSafeZoneViewModel @Inject constructor(
         return earthRadius * c
     }
 
-    // Resto de funciones onChange...
+    // Form validation
+    fun canCreateZone(): Boolean {
+        val currentState = _state.value
+        return with(currentState) {
+            name.isNotBlank() &&
+                    justification.isNotBlank() &&
+                    latitude.isNotBlank() &&
+                    longitude.isNotBlank() &&
+                    //statusId.isNotBlank() &&
+                    selectedUsers.size >= MAX_SELECTED_USERS &&
+                    !isLoading &&
+                    !isLoadingUserLocation &&
+                    currentUserLocation != null
+        }
+    }
+
+    // Form field updates
     fun onNameChange(value: String) = _state.update { it.copy(name = value) }
     fun onJustificationChange(value: String) = _state.update { it.copy(justification = value) }
     fun onResponsibilityChange(value: Boolean) = _state.update { it.copy(assumesResponsibility = value) }
     fun onLatitudeChange(value: String) = _state.update { it.copy(latitude = value) }
     fun onLongitudeChange(value: String) = _state.update { it.copy(longitude = value) }
-    fun onStatusIdChange(value: String) = _state.update { it.copy(statusId = value) }
+    //fun onStatusIdChange(value: String) = _state.update { it.copy(statusId = value) }
     fun onRatingChange(value: String) = _state.update { it.copy(rating = value) }
     fun onCategoryChange(value: String) = _state.update { it.copy(category = value) }
     fun onDescriptionChange(value: String) = _state.update { it.copy(description = value) }
     fun onImageUriChange(uri: Uri?) = _state.update { it.copy(imageUri = uri) }
+    fun onCategoryDropdownToggle() = _state.update {
+        it.copy(isCategoryDropdownExpanded = !it.isCategoryDropdownExpanded)
+    }
 
+    fun onCategorySelect(category: String) = _state.update {
+        it.copy(
+            category = category,
+            isCategoryDropdownExpanded = false
+        )
+    }
+
+    fun onCategoryDismiss() = _state.update {
+        it.copy(isCategoryDropdownExpanded = false)
+    }
     fun submit(contentResolver: ContentResolver) {
+        val currentState = _state.value
+
         if (!canCreateZone()) {
             _state.update {
                 it.copy(error = "Debe completar todos los campos requeridos y seleccionar exactamente 3 vigilantes")
@@ -253,11 +223,11 @@ class CreateSafeZoneViewModel @Inject constructor(
             return
         }
 
-        // Validar que la ubicación esté dentro del radio permitido
-        if (state.value.latitude.isNotBlank() && state.value.longitude.isNotBlank()) {
+        // Validate location is within radius
+        if (currentState.latitude.isNotBlank() && currentState.longitude.isNotBlank()) {
             val selectedLocation = LatLng(
-                state.value.latitude.toDoubleOrNull() ?: 0.0,
-                state.value.longitude.toDoubleOrNull() ?: 0.0
+                currentState.latitude.toDoubleOrNull() ?: 0.0,
+                currentState.longitude.toDoubleOrNull() ?: 0.0
             )
             if (!isLocationWithinRadius(selectedLocation)) {
                 _state.update {
@@ -269,40 +239,22 @@ class CreateSafeZoneViewModel @Inject constructor(
 
         _state.update { it.copy(isLoading = true, error = null, success = false) }
 
-        Log.d(TAG, "Iniciando creación de zona segura")
-        Log.d(TAG, "Usuarios seleccionados: ${buildUserIds()}")
-
-        val fields = mutableMapOf<String, RequestBody>().apply {
-            put("name", state.value.name.toPlainRequestBody())
-            put("justification", state.value.justification.toPlainRequestBody())
-            put("assumes_responsibility", state.value.assumesResponsibility.toString().toPlainRequestBody())
-            put("latitude", state.value.latitude.toPlainRequestBody())
-            put("longitude", state.value.longitude.toPlainRequestBody())
-            put("status_id", state.value.statusId.toPlainRequestBody())
-            put("user_ids", buildUserIds().toPlainRequestBody())
-            put("rating", state.value.rating.ifBlank { "0" }.toPlainRequestBody())
-
-            // Campos opcionales
-            if (state.value.description.isNotBlank()) {
-                put("description", state.value.description.toPlainRequestBody())
-            }
-            if (state.value.category.isNotBlank()) {
-                put("category", state.value.category.toPlainRequestBody())
-            }
-        }
-
-        var photoPart: MultipartBody.Part? = null
-        state.value.imageUri?.let { uri ->
-            Log.d(TAG, "Procesando imagen: $uri")
-            photoPart = uriToPart("photo_url", uri, contentResolver)
-        }
-
         viewModelScope.launch {
             try {
-                Log.d(TAG, "Enviando petición al backend")
+                val fields = buildRequestFields(currentState)
+                val photoPart = currentState.imageUri?.let { uri ->
+                    uriToPart("photo_url", uri, contentResolver)
+                }
+
                 val result = createSafeZoneUseCase(fields, photoPart)
-                Log.d(TAG, "Respuesta exitosa: $result")
-                _state.update { it.copy(isLoading = false, success = true) }
+                // Asumir que createSafeZoneUseCase retorna el ID de la zona creada
+                _state.update {
+                    it.copy(
+                        isLoading = false,
+                        success = true,
+                        createdSafeZoneId = result.id.toString() // Nuevo campo para almacenar el ID
+                    )
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "Error al crear zona segura", e)
                 _state.update {
@@ -314,9 +266,30 @@ class CreateSafeZoneViewModel @Inject constructor(
             }
         }
     }
+
+    private fun buildRequestFields(state: SafeZoneUiState): Map<String, RequestBody> {
+        return mutableMapOf<String, RequestBody>().apply {
+            put("name", state.name.toPlainRequestBody())
+            put("justification", state.justification.toPlainRequestBody())
+            put("assumes_responsibility", state.assumesResponsibility.toString().toPlainRequestBody())
+            put("latitude", state.latitude.toPlainRequestBody())
+            put("longitude", state.longitude.toPlainRequestBody())
+            val defaultstatus = "4"
+            put("status_id", defaultstatus.toPlainRequestBody())
+            put("user_ids", state.selectedUsers.joinToString(",") { it.id.toString() }.toPlainRequestBody())
+            put("rating", state.rating.ifBlank { "0" }.toPlainRequestBody())
+
+            // Optional fields
+            if (state.description.isNotBlank()) {
+                put("description", state.description.toPlainRequestBody())
+            }
+            if (state.category.isNotBlank()) {
+                put("category", state.category.toPlainRequestBody())
+            }
+        }
+    }
 }
 
-// Estado de UI actualizado
 data class SafeZoneUiState(
     val userSearchQuery: String = "",
     val userSuggestions: List<User> = emptyList(),
@@ -326,7 +299,7 @@ data class SafeZoneUiState(
     val assumesResponsibility: Boolean = false,
     val latitude: String = "",
     val longitude: String = "",
-    val statusId: String = "",
+    //val statusId: String = "",
     val rating: String = "",
     val category: String = "",
     val description: String = "",
@@ -334,7 +307,19 @@ data class SafeZoneUiState(
     val isLoading: Boolean = false,
     val success: Boolean = false,
     val error: String? = null,
-    // Nuevos campos para ubicación del usuario
     val currentUserLocation: LatLng? = null,
-    val isLoadingUserLocation: Boolean = false
+    val isLoadingUserLocation: Boolean = false,
+    val availableCategories: List<String> = listOf(
+        "Plaza",
+        "Parque",
+        "Iglesia",
+        "Estación de Bomberos",
+        "Comisaría",
+        // Categorías más comunes
+        "Tienda",
+        "Supermercado",
+        "Otro"
+    ),
+    val isCategoryDropdownExpanded: Boolean = false,
+    val createdSafeZoneId: String? = null
 )
