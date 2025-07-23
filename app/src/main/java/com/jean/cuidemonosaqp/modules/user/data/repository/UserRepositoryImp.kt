@@ -27,6 +27,7 @@ class UserRepositoryImp @Inject constructor(
             } else {
                 val errorMessage = when(response.code()){
                     401 -> "Token Invalido"
+                    403 -> "Permisos Necesarios"
                     500 -> "Error al obtener usuarios"
                     else -> "Algo salio mal"
                 }

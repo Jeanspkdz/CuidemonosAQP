@@ -1,5 +1,6 @@
 package com.jean.cuidemonosaqp.shared.components
 
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -68,12 +69,13 @@ fun BottomNavigationBar(
                     it.hasRoute(topLevelRoute.route::class)
                 } ?: false,
                 onClick = {
-                    navController.navigate(topLevelRoute.route){
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
-                        }
+                    Log.d("NAVIGATION", "Clicking on: ${topLevelRoute.route}")
+                    Log.d("NAVIGATION", "Current destination: ${navController.currentDestination?.route}")
+                    Log.d("NAVIGATION", "Start destination: ${navController.graph.startDestinationId}")
+                    Log.d("NAVIGATION", "findStartDestination ID: ${navController.graph.findStartDestination().id}")
+                    Log.d("NAVIGATION", "Are they equal? ${navController.graph.startDestinationId == navController.graph.findStartDestination().id}")
+                    navController.navigate(route = topLevelRoute.route){
                         launchSingleTop = true
-                        restoreState = true
                     }
                 },
                 colors = NavigationBarItemDefaults.colors(

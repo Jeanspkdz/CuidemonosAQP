@@ -25,4 +25,7 @@ sealed class Routes {
         data class Detail(val id: String): SafeZone()
     }
 
+    @Serializable
+    data object Notifications: Routes()
+
 }

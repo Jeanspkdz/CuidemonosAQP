@@ -1,8 +1,6 @@
 package com.jean.cuidemonosaqp.app
 
-import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -17,21 +15,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.jean.cuidemonosaqp.modules.profile.ui.ProfileViewModel
 import com.jean.cuidemonosaqp.navigation.NavGraph
 import com.jean.cuidemonosaqp.navigation.Routes
 import com.jean.cuidemonosaqp.shared.components.BottomNavigationBar
-import com.jean.cuidemonosaqp.shared.preferences.SessionViewModel
+import com.jean.cuidemonosaqp.shared.viewmodel.SharedViewModel
 import com.jean.cuidemonosaqp.shared.theme.CuidemonosAQPTheme
 import com.jean.cuidemonosaqp.shared.utils.ObserveAsEvents
 import com.jean.cuidemonosaqp.shared.utils.SnackBarController
@@ -43,8 +37,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val sharedViewModel = hiltViewModel<SharedViewModel>()
+
             CuidemonosAQPTheme(dynamicColor = false) {
-                MainScreen()
+                MainScreen(
+                    sharedViewModel
+                )
             }
         }
     }
@@ -52,35 +50,31 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainScreen(
-    context: Context = LocalContext.current
+    sharedViewModel: SharedViewModel
 ) {
     val navController = rememberNavController()
     val currentNavBackStackEntry = navController.currentBackStackEntryAsState().value
     val currentDestination = currentNavBackStackEntry?.destination
-    val currentHierarchy :  Sequence<NavDestination>? = currentDestination?.hierarchy
+    val currentHierarchy: Sequence<NavDestination>? = currentDestination?.hierarchy
     val showBottomBar = currentHierarchy?.none() {
         it.hasRoute(Routes.Auth.Login::class) || it.hasRoute(Routes.Auth.Register::class)
     } ?: false
 
-    //ESTO!!!!
-    val sessionViewModel = hiltViewModel<SessionViewModel>()
-    val userId by sessionViewModel.userId.collectAsStateWithLifecycle(null)
+    val userId by sharedViewModel.userId.collectAsStateWithLifecycle()
 
-    //SnackBar
     val snackBarHostState = remember {
         SnackbarHostState()
     }
 
     ObserveAsEvents(flow = SnackBarController.events) { e ->
         snackBarHostState.currentSnackbarData?.dismiss()
-
         val result = snackBarHostState.showSnackbar(
-            message =  e.message,
+            message = e.message,
             actionLabel = e.snackBarAction?.name,
             duration = SnackbarDuration.Short
         )
 
-        if(result == SnackbarResult.ActionPerformed){
+        if (result == SnackbarResult.ActionPerformed) {
             e.snackBarAction?.action?.invoke()
         }
     }
@@ -88,11 +82,11 @@ fun MainScreen(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
-            if (showBottomBar) {
+            if (showBottomBar && userId !== null) {
                 BottomNavigationBar(
                     navController = navController,
                     currentDestination = currentDestination,
-                    userId= userId!!
+                    userId = userId ?: ""
                 )
             }
         },
@@ -104,7 +98,8 @@ fun MainScreen(
     ) { innerPadding ->
         NavGraph(
             navController = navController,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding),
+            sharedViewModel= sharedViewModel
         )
     }
 }

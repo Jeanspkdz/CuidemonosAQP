@@ -8,10 +8,15 @@ import kotlinx.serialization.json.Json
 import java.io.InputStream
 import java.io.OutputStream
 
+enum class DefaultSessionValues{
+    TOKEN_DEFAULT,
+    ID_DEFAULT
+}
+
 @Serializable
 data class Session(
-    val token: String? = null,
-    val id: String? = null,
+    val token: String = DefaultSessionValues.TOKEN_DEFAULT.toString(),
+    val id: String = DefaultSessionValues.ID_DEFAULT.toString(),
 )
 
 const val DATA_STORE_FILE_NAME = "user_preferences.json"

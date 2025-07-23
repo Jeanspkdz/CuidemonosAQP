@@ -33,15 +33,17 @@ import com.jean.cuidemonosaqp.modules.profile.ui.components.ProfileStat
 import com.jean.cuidemonosaqp.modules.profile.ui.components.ProfileStatistics
 import com.jean.cuidemonosaqp.modules.profile.ui.components.StartRating
 import com.jean.cuidemonosaqp.modules.profile.ui.components.UserReviewList
+import com.jean.cuidemonosaqp.shared.viewmodel.SharedViewModel
 import com.jean.cuidemonosaqp.shared.theme.CuidemonosAQPTheme
 
 
 @Composable
 fun ProfileScreenHost(
+    sharedViewModel: SharedViewModel,
     viewModel: ProfileViewModel,
     modifier: Modifier = Modifier
 ) {
-    val user by viewModel.userState.collectAsStateWithLifecycle()
+
     val reviews by viewModel.reviews.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     val showAddReviewDialog by viewModel.showAddReviewDialog.collectAsStateWithLifecycle()
@@ -49,9 +51,15 @@ fun ProfileScreenHost(
     val userReviewComment by viewModel.userReviewComment.collectAsStateWithLifecycle()
     val isOwnProfile by viewModel.isOwnProfile.collectAsStateWithLifecycle()
     val errorMessage by viewModel.errorMessage.collectAsStateWithLifecycle()
+    val user = if (isOwnProfile) {
+        sharedViewModel.user.collectAsStateWithLifecycle()
+    } else {
+        viewModel.userState.collectAsStateWithLifecycle()
+    }
+
 
     ProfileScreen(
-        user = user,
+        user = user.value,
         reviews = reviews,
         rating = rating,
         onSelectRating = viewModel::onSelectRating,
@@ -180,6 +188,10 @@ fun ProfileScreen(
         )
 
         Spacer(modifier = Modifier.height(24.dp))
+
+        if(isLoading){
+            CircularProgressIndicator(modifier= Modifier.align(Alignment.CenterHorizontally))
+        }
 
         UserReviewList(reviews = reviews)
     }

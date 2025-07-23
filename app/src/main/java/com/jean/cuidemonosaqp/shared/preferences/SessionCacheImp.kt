@@ -18,36 +18,36 @@ class SessionRepositoryImp @Inject constructor(
         }
     }
 
-    override fun observeUserId(): Flow<String?> {
+    override fun observeUserId(): Flow<String> {
         return dataStore.data.map {
             it.id
         }
     }
 
-    override fun observeToken(): Flow<String?> {
+    override fun observeToken(): Flow<String> {
         return dataStore.data.map {
             it.token
         }
     }
 
-    override suspend fun getToken(): String? {
+    override suspend fun getToken(): String {
         return dataStore.data.first().token
     }
 
-    override fun getTokenSync(): String? {
+    override fun getTokenSync(): String {
         return runBlocking(Dispatchers.IO) {
             dataStore.data.first().token
         }
     }
 
-    override suspend fun getUserId(): String? {
+    override suspend fun getUserId(): String {
         return dataStore.data.first().id
     }
 
     override suspend fun updateToken(token: String?) {
         dataStore.updateData {
             it.copy(
-                token = token
+                token = token!!
             )
         }
     }
@@ -55,7 +55,7 @@ class SessionRepositoryImp @Inject constructor(
     override suspend fun updateUserId(id: String?) {
        dataStore.updateData {
            it.copy(
-               id = id
+               id = id!!
            )
        }
     }
