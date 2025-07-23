@@ -78,7 +78,7 @@ fun NavGraph(
             RegisterScreenHost(
                 viewModel = viewModel,
                 onRegisterSuccess = {
-                    navController.navigate(Routes.Map) {
+                    navController.navigate(Routes.Auth.Login) {
                         popUpTo(Routes.Auth.Register) { inclusive = true }
                     }
                 },

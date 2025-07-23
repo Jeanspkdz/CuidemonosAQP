@@ -229,7 +229,7 @@ class RegisterViewModel @Inject constructor(
         _reputationStatusId.value = "1"
         _profilePhotoUri.value = null
         _dniPhotoUri.value = null
-        _registerState.value = RegisterState()
+//        _registerState.value = RegisterState()
     }
 
     // Método de validación (opcional, para usar en la UI)

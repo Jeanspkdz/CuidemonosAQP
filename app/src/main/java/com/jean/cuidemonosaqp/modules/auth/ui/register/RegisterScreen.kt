@@ -3,6 +3,7 @@
 package com.jean.cuidemonosaqp.modules.auth.ui.register
 
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -100,6 +101,7 @@ fun RegisterScreenHost(
 
     // Manejar los estados del registro - misma lógica que LoginScreen
     LaunchedEffect(registerState) {
+        Log.d("RegisterScreen", "RegisterScreenHost: $registerState ")
         when {
             registerState.success -> {
                 Toast.makeText(context, "¡Registro exitoso!", Toast.LENGTH_SHORT).show()
