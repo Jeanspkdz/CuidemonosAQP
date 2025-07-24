@@ -105,9 +105,9 @@ fun MapScreen(
                     }) {
                         BadgedBox(
                             badge = {
-                                Badge {
-                                    Text(text = "2")
-                                }
+//                                Badge {
+//                                    Text(text = "2")
+//                                }
                             }
                         ) {
                             Icon(

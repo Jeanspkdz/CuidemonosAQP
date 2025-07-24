@@ -28,6 +28,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
 import com.jean.cuidemonosaqp.modules.profile.ui.components.ProfileAvatar
 import com.jean.cuidemonosaqp.modules.safeZone.data.dto.SafeZoneResponseDTO
 import com.jean.cuidemonosaqp.modules.safeZone.data.dto.StatusResponseDTO
@@ -92,11 +98,23 @@ fun SafeZoneDetailScreen(
 
         HorizontalDivider(Modifier.padding(vertical = 15.dp))
 
-        Box(
+        val ubicacion = LatLng(safeZone.latitude, safeZone.longitude)
+        val cameraPositionState = rememberCameraPositionState {
+            position = CameraPosition.fromLatLngZoom(ubicacion, 16f) // ajusta el zoom si quieres
+        }
+
+        GoogleMap(
             modifier = Modifier
                 .height(200.dp)
-                .fillMaxWidth()
-        )
+                .fillMaxWidth(),
+            cameraPositionState = cameraPositionState
+        ) {
+            Marker(
+                state = MarkerState(position = ubicacion),
+                title = "Mi ubicación",
+                snippet = "Estoy aquí"
+            )
+        }
 
         Spacer(Modifier.height(12.dp))
 

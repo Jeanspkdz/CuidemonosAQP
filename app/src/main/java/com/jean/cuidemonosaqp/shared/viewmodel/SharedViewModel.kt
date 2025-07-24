@@ -89,7 +89,7 @@ class SharedViewModel @Inject constructor(
 
     private fun loadUserInfo() {
         viewModelScope.launch {
-            val userId = _userId.value
+            val userId = _userId.value!!
             if (userId == DefaultSessionValues.ID_DEFAULT.toString()) {
                 Log.d(TAG, "loadUserInfo: No hay nada en DataStore")
                 delay(2000)
@@ -97,7 +97,7 @@ class SharedViewModel @Inject constructor(
                 return@launch
             }
 
-            when (val result = getUserInfoUseCase("1")) {
+            when (val result = getUserInfoUseCase(userId)) {
                 is NetworkResult.Success -> {
                     _user.value = result.data.toUI()
                     Log.d(TAG, "loadUserInfo: ${_user.value} ")

@@ -181,9 +181,9 @@ fun ProfileScreen(
 
         ProfileStatistics(
             listOf(
-                ProfileStat("📍", user.monitoredPoints.toString(), "Puntos Vigilados"),
-                ProfileStat("⏱️", "${user.surveillanceHours}h", "Vigilancia"),
-                ProfileStat("🛡️", "${user.reliability}%", "Confiabilidad")
+                ProfileStat("📍", "", "Puntos Vigilados"),
+                ProfileStat("⏱️", "", "Vigilancia"),
+                ProfileStat("🛡️", "", "Confiabilidad")
             )
         )
 
