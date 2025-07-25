@@ -36,9 +36,9 @@ android {
             buildConfigField("String", "API_URL", "\"https://cuidemonosaqp-backend.onrender.com\"")
         }
         debug {
-            //buildConfigField("String", "API_URL", "\"https://cuidemonosaqp-backend.onrender.com\"")
-//            buildConfigField("String", "API_URL", "\"http://192.168.41.117:3000/\"")
-            buildConfigField("String", "API_URL", "\"http://10.0.2.2:3000/\"")
+            buildConfigField("String", "API_URL", "\"https://cuidemonosaqp-backend.onrender.com\"")
+            //buildConfigField("String", "API_URL", "\"http://192.168.41.117:3000/\"")
+            //buildConfigField("String", "API_URL", "\"http://10.0.2.2:3000/\"")
         }
 
     }
