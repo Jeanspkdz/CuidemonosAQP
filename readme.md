@@ -30,6 +30,21 @@ Los usuarios deben registrarse proporcionando:
 - Sistema automático de activación de puntos seguros
 - Validación colectiva por parte de la comunidad
 
+  
+## Instalación
+### Descarga de la APK
+
+Debido a que la aplicación requiere claves de API de Google Maps que no pueden ser expuestas públicamente en el repositorio por razones de seguridad, se proporciona la APK compilada para su instalación directa.
+
+### Pasos para instalar:
+
+1. Descarga el archivo APK desde el siguiente link [Apk](https://drive.google.com/drive/folders/1oB0GbjP3-4zpkhl63tcYmURd2RvaVrZH?usp=sharing) de este repositorio
+2. En tu dispositivo Android, habilita la instalación de aplicaciones de fuentes desconocidas:
+   - Ve a **Configuración > Seguridad > Fuentes desconocidas**
+   - O **Configuración > Aplicaciones > Acceso especial > Instalar aplicaciones desconocidas**
+3. Localiza el archivo APK descargado y tócalo para iniciar la instalación
+4. Sigue las instrucciones en pantalla para completar la instalación
+
 ## Arquitectura del Proyecto
 
 ### Android - MVVM Modular + Clean Architecture
